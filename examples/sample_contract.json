@@ -1,0 +1,22 @@
+{
+  "mode": "brk-task",
+  "domain": "agricultural_sensor",
+  "lossless": false,
+  "bit_exact_reconstruction": false,
+  "semantic_equivalent": true,
+  "tasks": [
+    "daily_statistics",
+    "trend_reconstruction",
+    "anomaly_preservation"
+  ],
+  "tolerances": {
+    "temperature_rmse_celsius": 0.5,
+    "humidity_rmse_percent": 3.0,
+    "soil_moisture_rmse_percent": 2.0,
+    "anomaly_time_error_minutes": 10
+  },
+  "hard_constraints": [
+    "preserve_sensor_count",
+    "preserve_detected_anomalies"
+  ]
+}
