@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "brk-local"
+version = "0.1.0"
+description = "BRK - Breakthrough Container: A semantic/task-oriented reconstruction container format"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+authors = [
+    {name = "BRK Contributors"},
+]
+keywords = ["brk", "breakthrough-container", "compression", "sensor", "iot", "semantic", "reconstruction", ".brk", "agricultural-sensor"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Topic :: System :: Archiving :: Compression",
+    "Topic :: System :: Archiving :: Packaging",
+    "Environment :: Console",
+    "Operating System :: OS Independent",
+    "Typing :: Typed",
+]
+
+[project.scripts]
+brk = "brk.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["brk*"]
+
+[tool.setuptools.package-data]
+brk = ["py.typed"]
+mime = ["*.xml", "*.desktop", "*.reg", "*.ps1", "*.plist", "*.sh"]
+
+[project.urls]
+Homepage = "https://github.com/brk-local/brk-local"
+Repository = "https://github.com/brk-local/brk-local"
+Documentation = "https://github.com/brk-local/brk-local/tree/main/docs"
+Bug-Tracker = "https://github.com/brk-local/brk-local/issues"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]

@@ -1,0 +1,18 @@
+[Desktop Entry]
+Type=Application
+Name=BRK Inspector
+Name[ja]=BRK インスペクター
+Name[zh]=BRK 检查器
+Name[ko]=BRK 검사기
+GenericName=BRK Container Inspector
+Comment=Inspect and verify .brk Breakthrough Container files
+Comment[ja]=.brk ブレイクスルーコンテナファイルの検査と検証
+Comment[zh]=检查和验证 .brk 突破性容器文件
+Comment[ko]=.brk 돌파 컨테이너 파일 검사 및 검증
+Icon=brk
+Exec=brk inspect %f
+Terminal=true
+Categories=Science;DataVisualization;Utility;
+MimeType=application/vnd.brk;
+Keywords=brk;compression;sensor;reconstruction;semantic;
+NoDisplay=false

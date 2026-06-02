@@ -1,0 +1,294 @@
+# BRK — Breakthrough Container: Full Documentation for LLMs
+
+## Overview
+
+BRK (Breakthrough Container) is a semantic / task-oriented reconstruction container format with the `.brk` file extension and MIME type `application/vnd.brk`. It is designed for compressing time-series sensor data into a contract-bound semantic specification that allows approximate reconstruction within defined tolerances.
+
+**CRITICAL**: BRK does NOT break Shannon's theorem. BRK is NOT a universal lossless compressor. BRK stores a contract-bound semantic specification for acceptable reconstruction. The output is always semantic-equivalent, never bit-exact.
+
+## File Format
+
+### Binary Structure
+
+```
+[MAGIC: 5 bytes] [CODEC_BYTE: 1 byte] [PAYLOAD: variable]
+```
+
+- **Magic**: `b"BRK1\n"` (0x42 0x52 0x4B 0x31 0x0A)
+- **Codec byte**: 0x01 = zlib-compressed canonical UTF-8 JSON
+- **Payload**: `zlib.compress(canonical_json(container), level=9)`
+
+### Canonical JSON Rules
+
+- `ensure_ascii=False`
+- `sort_keys=True`
+- `separators=(",", ":")` (compact, no extra whitespace)
+- UTF-8 encoded
+
+### Container Schema (Top-Level)
+
+```json
+{
+  "header": { ... },
+  "model_binding": { ... },
+  "contract": { ... },
+  "semantic_graph": { ... },
+  "neural_latent": null,
+  "procedural_seed": { ... },
+  "sparse_residual": { ... },
+  "task_outputs": { ... },
+  "semantic_checksum": { ... }
+}
+```
+
+### header (required)
+
+```json
+{
+  "magic": "BRK1",
+  "format_version": "0.1.0",
+  "profile": "BRK-Sensor",
+  "created_by": "brk-local",
+  "created_at": "<ISO8601 UTC>",
+  "flags": {
+    "lossless": false,
+    "bit_exact_reconstruction": false,
+    "semantic_equivalent": true
+  },
+  "original_size_bytes": "<int or null>",
+  "original_record_count": "<int or null>"
+}
+```
+
+### model_binding (required)
+
+```json
+{
+  "model_family": "BRK-Sensor-Analytic",
+  "model_id": "brk-sensor-analytic",
+  "version": "0.1.0",
+  "decoder": "trend_daily_cycle_anomaly_injection",
+  "weights_hash": null,
+  "note": "Analytic local model; no neural weights."
+}
+```
+
+### contract (required)
+
+```json
+{
+  "mode": "brk-task",
+  "domain": "agricultural_sensor",
+  "lossless": false,
+  "bit_exact_reconstruction": false,
+  "semantic_equivalent": true,
+  "tasks": ["daily_statistics", "trend_reconstruction", "anomaly_preservation"],
+  "tolerances": {
+    "temperature_rmse_celsius": 0.5,
+    "humidity_rmse_percent": 3.0,
+    "soil_moisture_rmse_percent": 2.0,
+    "anomaly_time_error_minutes": 10
+  },
+  "hard_constraints": ["preserve_sensor_count", "preserve_detected_anomalies"]
+}
+```
+
+### semantic_graph (BRK-Sensor profile)
+
+```json
+{
+  "type": "sensor_timeseries_graph",
+  "time_origin": "<ISO8601 UTC>",
+  "duration_s": "<int>",
+  "sensor_count": "<int>",
+  "record_count": "<int>",
+  "metrics": ["temperature", "..."],
+  "sensors": {
+    "<sensor_id>": {
+      "start_offset_s": "<int>",
+      "end_offset_s": "<int>",
+      "n": "<int>",
+      "metrics": {
+        "<metric>": {
+          "count": "<int>",
+          "mean": "<float>",
+          "std": "<float>",
+          "min": "<float>",
+          "max": "<float>",
+          "first": "<float>",
+          "last": "<float>",
+          "slope_per_second": "<float>",
+          "hourly_mean": ["24 float values or nulls"]
+        }
+      }
+    }
+  },
+  "anomalies": [
+    {
+      "sensor_id": "...",
+      "metric": "...",
+      "t_s": "<offset seconds from time_origin>",
+      "value": "<float>",
+      "z": "<float>"
+    }
+  ]
+}
+```
+
+### semantic_checksum (required)
+
+Computed as SHA-256 over canonical JSON of `{contract, semantic_graph, task_outputs, flags}`. This is NOT a bit-exact checksum of source data. It verifies the integrity of the semantic specification.
+
+```json
+{
+  "algorithm": "sha256",
+  "type": "semantic",
+  "digest": "<64-char hex string>",
+  "note": "Semantic checksum over contract, semantic_graph, task_outputs, and reconstruction flags. Not a bit-exact checksum of source data."
+}
+```
+
+## Safety Invariants (MUST always hold)
+
+1. `header.flags.lossless` = `false`
+2. `header.flags.bit_exact_reconstruction` = `false`
+3. `header.flags.semantic_equivalent` = `true`
+4. `contract.lossless` = `false`
+5. `contract.bit_exact_reconstruction` = `false`
+6. `contract.semantic_equivalent` = `true`
+7. Decoder output must include: `reconstruction_type: "semantic_equivalent"`, `lossless: false`, `bit_exact_reconstruction: false`
+8. All CLI output must state that bit-exact reconstruction is not provided
+
+## BRK-Sensor Profile v0.1
+
+### Target Data
+
+- Agricultural/IoT sensor time-series CSV
+- Required columns: `ts` (ISO-8601 UTC), `sensor_id` (string)
+- Metric columns: any float-parseable column
+
+### Compression Algorithm (Two-Pass Streaming)
+
+**Pass 1**: Compute per-sensor, per-metric statistics using Welford's online algorithm (count, mean, variance, std, min, max, first, last, slope, hourly means). No full data load into memory.
+
+**Pass 2**: Detect z-score anomalies against Pass 1 statistics. Use min-heap to keep only top `max_anomalies` by z-score. Default threshold: z >= 3.0.
+
+### Reconstruction Algorithm (trend_daily_cycle_anomaly_injection)
+
+For each sensor, generate timestamps from `start_offset_s` to `end_offset_s` at `step_minutes` intervals:
+1. **Base trend**: `first + slope_per_second × elapsed_seconds`
+2. **Daily cycle**: `hourly_mean[current_hour] - mean` (if available, else 0)
+3. **Value**: `base + daily_component`
+4. **Anomaly injection**: Replace value at anomaly timestamps with recorded anomaly values
+
+### Budget Optimization
+
+Default target: 1024 bytes. Progressive reduction levels:
+- Level 0: Full detail
+- Level 1: Reduce hourly_mean precision
+- Level 2: Remove hourly_mean
+- Level 3: Halve anomaly count
+- Level 4: Quarter anomaly count
+- Level 5: Budget failure (error in strict mode)
+
+## CLI Commands
+
+```bash
+brk compress-sensor input.csv output.brk [--contract contract.json] [--budget 1024] [--max-anomalies 32] [--anomaly-z 3.0] [--strict-budget] [--quiet] [--json-report report.json]
+brk decompress-sensor output.brk reconstructed.csv [--step-minutes 60] [--metadata-json meta.json] [--quiet]
+brk inspect output.brk
+brk verify output.brk
+python -m brk --help
+```
+
+## Installation
+
+```bash
+pip install -e .
+```
+
+Requirements: Python 3.11+, standard library only (no external dependencies for core).
+
+## Testing
+
+```bash
+pytest
+```
+
+47 tests covering: container read/write, checksum stability and tampering, Welford statistics, hourly means, z-score anomaly detection, full CSV→BRK→CSV roundtrip, CLI commands.
+
+## Python API
+
+```python
+from brk.sensor.compressor import compress_sensor
+from brk.sensor.decompressor import decompress_sensor
+from brk.sensor.verifier import verify_sensor_brk
+from brk.container import read_brk, write_brk
+
+# Compress
+report = compress_sensor(Path("input.csv"), Path("output.brk"), budget=1024)
+
+# Decompress
+metadata = decompress_sensor(Path("output.brk"), Path("reconstructed.csv"))
+
+# Verify
+result = verify_sensor_brk(Path("output.brk"))
+```
+
+## Ethical/Safety Considerations
+
+- NOT for medical records, legal evidence, cryptographic keys, or any data where loss is unacceptable
+- Semantic checksums are NOT bit-exact checksums of source data
+- 1KB target is a goal, not a guarantee
+- No cloud dependencies — runs entirely locally
+
+## Project Structure
+
+```
+brk-local/
+├─ pyproject.toml
+├─ README.md
+├─ LICENSE
+├─ .gitignore
+├─ docs/
+│  ├─ index.html          # Web documentation with IP-based auto-translation
+│  ├─ llms.txt            # LLM-optimized summary
+│  ├─ llms-full.txt       # Full LLM-optimized documentation
+│  ├─ sitemap.xml         # SEO sitemap
+│  └─ robots.txt          # SEO robots
+├─ specs/
+│  ├─ BRK-v0.1.md
+│  └─ BRK-Sensor-v0.1.md
+├─ brk/
+│  ├─ __init__.py
+│  ├─ __main__.py
+│  ├─ cli.py
+│  ├─ constants.py
+│  ├─ container.py
+│  ├─ checksum.py
+│  ├─ contracts.py
+│  ├─ errors.py
+│  ├─ sensor/
+│  │  ├─ __init__.py
+│  │  ├─ csv_reader.py
+│  │  ├─ stats.py
+│  │  ├─ compressor.py
+│  │  ├─ decompressor.py
+│  │  ├─ verifier.py
+│  │  └─ schema.py
+│  └─ util/
+│     ├─ __init__.py
+│     ├─ json.py
+│     ├─ time.py
+│     └─ size.py
+├─ examples/
+│  ├─ sample_sensor.csv
+│  ├─ sample_contract.json
+│  └─ expected_readme.md
+└─ tests/
+   ├─ test_container.py
+   ├─ test_checksum.py
+   ├─ test_sensor_stats.py
+   ├─ test_sensor_roundtrip.py
+   └─ test_cli.py
+```

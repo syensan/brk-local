@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BRK — Breakthrough Container | Semantic Reconstruction Format</title>
+
+  <!-- SEO Meta -->
+  <meta name="description" content="BRK is a semantic/task-oriented reconstruction container format (.brk) for time-series sensor data. NOT a universal lossless compressor. Does not break Shannon's theorem.">
+  <meta name="keywords" content="BRK, Breakthrough Container, .brk, semantic compression, sensor data, IoT, agricultural sensor, time-series, reconstruction container, lossless false">
+  <meta name="author" content="BRK Contributors">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://brk-local.github.io/">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="BRK — Breakthrough Container">
+  <meta property="og:description" content="Semantic/task-oriented reconstruction container format for time-series sensor data. NOT a universal lossless compressor.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://brk-local.github.io/">
+  <meta property="og:locale" content="en">
+  <meta property="og:locale:alternate" content="ja">
+  <meta property="og:locale:alternate" content="zh">
+  <meta property="og:locale:alternate" content="ko">
+  <meta property="og:locale:alternate" content="fr">
+  <meta property="og:locale:alternate" content="de">
+  <meta property="og:locale:alternate" content="es">
+  <meta property="og:locale:alternate" content="pt">
+  <meta property="og:locale:alternate" content="it">
+  <meta property="og:locale:alternate" content="ru">
+  <meta property="og:locale:alternate" content="ar">
+  <meta property="og:locale:alternate" content="th">
+  <meta property="og:locale:alternate" content="vi">
+  <meta property="og:locale:alternate" content="id">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="BRK — Breakthrough Container">
+  <meta name="twitter:description" content="Semantic reconstruction container format. NOT a universal lossless compressor.">
+
+  <!-- Structured Data (JSON-LD) for SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "BRK — Breakthrough Container",
+    "alternateName": "brk-local",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Cross-platform",
+    "programmingLanguage": "Python",
+    "description": "A semantic/task-oriented reconstruction container format for time-series sensor data. NOT a universal lossless compressor. Does not break Shannon's theorem.",
+    "url": "https://brk-local.github.io/",
+    "license": "https://opensource.org/licenses/MIT",
+    "version": "0.1.0",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "featureList": [
+      "Two-pass streaming CSV processing",
+      "Welford online statistics",
+      "Z-score anomaly detection",
+      "Semantic checksum (SHA-256)",
+      "Contract-bound reconstruction",
+      "1KB target budget optimization",
+      "No cloud dependencies",
+      "lossless=false always enforced"
+    ]
+  }
+  </script>
+
+  <!-- LLMO: Machine-readable metadata -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "BRK Container Format Specification v0.1",
+    "description": "Specification for the .brk semantic reconstruction container format",
+    "proficiencyLevel": "Advanced",
+    "about": {
+      "@type": "Thing",
+      "name": "Data compression",
+      "description": "Semantic reconstruction, not lossless compression"
+    },
+    "codeRepository": "https://github.com/brk-local/brk-local"
+  }
+  </script>
+
+  <!-- hreflang for multilingual SEO -->
+  <link rel="alternate" hreflang="en" href="https://brk-local.github.io/?lang=en">
+  <link rel="alternate" hreflang="ja" href="https://brk-local.github.io/?lang=ja">
+  <link rel="alternate" hreflang="zh" href="https://brk-local.github.io/?lang=zh">
+  <link rel="alternate" hreflang="ko" href="https://brk-local.github.io/?lang=ko">
+  <link rel="alternate" hreflang="fr" href="https://brk-local.github.io/?lang=fr">
+  <link rel="alternate" hreflang="de" href="https://brk-local.github.io/?lang=de">
+  <link rel="alternate" hreflang="es" href="https://brk-local.github.io/?lang=es">
+  <link rel="alternate" hreflang="pt" href="https://brk-local.github.io/?lang=pt">
+  <link rel="alternate" hreflang="it" href="https://brk-local.github.io/?lang=it">
+  <link rel="alternate" hreflang="ru" href="https://brk-local.github.io/?lang=ru">
+  <link rel="alternate" hreflang="ar" href="https://brk-local.github.io/?lang=ar">
+  <link rel="alternate" hreflang="th" href="https://brk-local.github.io/?lang=th">
+  <link rel="alternate" hreflang="vi" href="https://brk-local.github.io/?lang=vi">
+  <link rel="alternate" hreflang="id" href="https://brk-local.github.io/?lang=id">
+  <link rel="alternate" hreflang="x-default" href="https://brk-local.github.io/">
+
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --accent2: #3fb950;
+      --warning: #d29922;
+      --danger: #f85149;
+      --code-bg: #1c2128;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Noto Sans, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* Language selector */
+    .lang-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.4rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.85rem;
+    }
+
+    .lang-bar label { color: var(--text-muted); margin-right: 0.5rem; }
+
+    .lang-bar select {
+      background: var(--code-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.2rem 0.5rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .lang-bar .detected { color: var(--accent); font-size: 0.8rem; }
+
+    /* Hero */
+    .hero {
+      margin-top: 3rem;
+      text-align: center;
+      padding: 3rem 0 2rem;
+    }
+
+    .hero h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero h1 .ext { color: var(--accent); }
+
+    .hero .tagline {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero .badges {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .badge-blue { background: #1f6feb33; color: var(--accent); border: 1px solid #1f6feb55; }
+    .badge-green { background: #23863633; color: var(--accent2); border: 1px solid #23863655; }
+    .badge-yellow { background: #9e6a0333; color: var(--warning); border: 1px solid #9e6a0355; }
+    .badge-red { background: #da363333; color: var(--danger); border: 1px solid #da363355; }
+
+    /* Warning banner */
+    .warning-banner {
+      background: #9e6a0322;
+      border: 1px solid #9e6a0355;
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      margin: 2rem 0;
+      text-align: center;
+    }
+
+    .warning-banner strong { color: var(--warning); }
+
+    /* Sections */
+    section { margin: 3rem 0; }
+
+    h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 1.5rem 0 0.75rem;
+      color: var(--accent);
+    }
+
+    p { margin-bottom: 1rem; }
+
+    ul, ol {
+      margin: 0.5rem 0 1rem 1.5rem;
+    }
+
+    li { margin-bottom: 0.3rem; }
+
+    /* Code */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.88em;
+    }
+
+    /* Feature grid */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem;
+    }
+
+    .feature-card h4 {
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    /* Comparison table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+
+    th, td {
+      padding: 0.6rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th { color: var(--accent); font-weight: 600; }
+    td { color: var(--text-muted); }
+    td code { font-size: 0.85em; }
+
+    /* Footer */
+    footer {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 2rem; }
+      .container { padding: 1rem; }
+      .feature-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Language Bar -->
+<div class="lang-bar">
+  <div>
+    <label for="lang-select">🌐</label>
+    <select id="lang-select">
+      <option value="en">English</option>
+      <option value="ja">日本語</option>
+      <option value="zh">中文</option>
+      <option value="ko">한국어</option>
+      <option value="fr">Français</option>
+      <option value="de">Deutsch</option>
+      <option value="es">Español</option>
+      <option value="pt">Português</option>
+      <option value="it">Italiano</option>
+      <option value="ru">Русский</option>
+      <option value="ar">العربية</option>
+      <option value="th">ไทย</option>
+      <option value="vi">Tiếng Việt</option>
+      <option value="id">Bahasa Indonesia</option>
+    </select>
+    <span class="detected" id="lang-detected"></span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>BRK <span class="ext">.brk</span></h1>
+    <p class="tagline" data-i18n="tagline">Semantic / Task-Oriented Reconstruction Container</p>
+    <div class="badges">
+      <span class="badge badge-blue">Python 3.11+</span>
+      <span class="badge badge-green">MIT License</span>
+      <span class="badge badge-yellow" data-i18n="badge_lossless">Lossless: false</span>
+      <span class="badge badge-red" data-i18n="badge_shannon">Does NOT break Shannon's theorem</span>
+    </div>
+  </div>
+
+  <!-- Warning Banner -->
+  <div class="warning-banner">
+    <strong data-i18n="warning_title">⚠ Important</strong><br>
+    <span data-i18n="warning_text">BRK does NOT break Shannon's theorem. BRK is NOT a universal lossless compressor. BRK stores a contract-bound semantic specification for acceptable reconstruction.</span>
+  </div>
+
+  <!-- What is BRK -->
+  <section>
+    <h2 data-i18n="h_what">What is BRK?</h2>
+    <p data-i18n="p_what_1">BRK (Breakthrough Container) is a file format and Python CLI tool that compresses time-series sensor data into a <strong>contract-bound semantic specification</strong>. Instead of bit-exact compression, BRK preserves statistical properties, trends, daily cycles, and anomalies — enabling approximate reconstruction within defined tolerances.</p>
+    <p data-i18n="p_what_2">The reconstructed data is <strong>NOT</strong> the original data. It is a semantic-equivalent approximation that satisfies the reconstruction contract. This approach is designed for agricultural and IoT sensor data where statistical fidelity matters more than individual data points.</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h4 data-i18n="feat_streaming">Streaming Processing</h4>
+        <p data-i18n="feat_streaming_desc">Two-pass streaming handles 1GB+ CSV files without loading into memory. Welford's algorithm for numerical stability.</p>
+      </div>
+      <div class="feature-card">
+        <h4 data-i18n="feat_anomaly">Anomaly Detection</h4>
+        <p data-i18n="feat_anomaly_desc">Z-score anomaly detection with configurable threshold. Top anomalies preserved as sparse residuals for injection during reconstruction.</p>
+      </div>
+      <div class="feature-card">
+        <h4 data-i18n="feat_contract">Contract-Bound</h4>
+        <p data-i18n="feat_contract_desc">Explicit reconstruction contract with tolerances. Semantic checksum (SHA-256) verifies specification integrity.</p>
+      </div>
+      <div class="feature-card">
+        <h4 data-i18n="feat_local">100% Local</h4>
+        <p data-i18n="feat_local_desc">No cloud, no serverless, no external AI APIs. Runs entirely on your local machine or on-premises server.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Start -->
+  <section>
+    <h2 data-i18n="h_quickstart">Quick Start</h2>
+
+    <h3 data-i18n="h_install">Install</h3>
+    <pre><code>cd brk-local
+pip install -e .</code></pre>
+
+    <h3 data-i18n="h_compress">Compress</h3>
+    <pre><code>brk compress-sensor examples/sample_sensor.csv output.brk</code></pre>
+    <p data-i18n="p_compress_output">Output: Output size, budget status, and explicit "Lossless: false" notification.</p>
+
+    <h3 data-i18n="h_inspect">Inspect</h3>
+    <pre><code>brk inspect output.brk</code></pre>
+
+    <h3 data-i18n="h_verify">Verify</h3>
+    <pre><code>brk verify output.brk</code></pre>
+
+    <h3 data-i18n="h_decompress">Reconstruct</h3>
+    <pre><code>brk decompress-sensor output.brk reconstructed.csv --step-minutes 60</code></pre>
+    <p data-i18n="p_decompress_note">The reconstructed CSV is a semantic-equivalent approximation, NOT the original data.</p>
+  </section>
+
+  <!-- File Format -->
+  <section>
+    <h2 data-i18n="h_format">File Format</h2>
+
+    <table>
+      <thead>
+        <tr><th data-i18n="th_field">Field</th><th data-i18n="th_size">Size</th><th data-i18n="th_desc">Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>MAGIC</code></td><td>5 bytes</td><td data-i18n="td_magic"><code>b"BRK1\n"</code></td></tr>
+        <tr><td><code>CODEC_BYTE</code></td><td>1 byte</td><td data-i18n="td_codec"><code>0x01</code> = zlib compressed JSON</td></tr>
+        <tr><td><code>PAYLOAD</code></td><td data-i18n="td_variable">variable</td><td data-i18n="td_payload">Compressed canonical JSON container</td></tr>
+      </tbody>
+    </table>
+
+    <h3 data-i18n="h_safety_invariants">Safety Invariants (always enforced)</h3>
+    <ul>
+      <li><code>header.flags.lossless = false</code></li>
+      <li><code>header.flags.bit_exact_reconstruction = false</code></li>
+      <li><code>header.flags.semantic_equivalent = true</code></li>
+      <li><code>contract.lossless = false</code></li>
+      <li><code>contract.semantic_equivalent = true</code></li>
+    </ul>
+  </section>
+
+  <!-- How Reconstruction Works -->
+  <section>
+    <h2 data-i18n="h_reconstruction">How Reconstruction Works</h2>
+    <p data-i18n="p_reconstruction">The <code>trend_daily_cycle_anomaly_injection</code> decoder generates approximate values:</p>
+    <ol>
+      <li data-i18n="recon_step1"><strong>Base trend</strong>: <code>first + slope_per_second × elapsed_seconds</code></li>
+      <li data-i18n="recon_step2"><strong>Daily cycle</strong>: <code>hourly_mean[current_hour] - mean</code> (if available)</li>
+      <li data-i18n="recon_step3"><strong>Anomaly injection</strong>: Recorded anomalies replace calculated values at their timestamps</li>
+    </ol>
+    <p data-i18n="p_reconstruction_note">This produces a time series that preserves statistical properties and detected anomalies, but is NOT bit-exact to the original.</p>
+  </section>
+
+  <!-- Suitable / Not Suitable -->
+  <section>
+    <h2 data-i18n="h_suitable">When to Use / Not Use BRK</h2>
+
+    <h3 data-i18n="h_suitable_yes">✅ Suitable for</h3>
+    <ul>
+      <li data-i18n="suit_1">Agricultural sensor data with regular intervals and daily patterns</li>
+      <li data-i18n="suit_2">IoT environmental monitoring with periodic readings</li>
+      <li data-i18n="suit_3">Time-series data where statistical properties matter more than individual points</li>
+      <li data-i18n="suit_4">Scenarios needing dramatic size reduction with acceptable approximation</li>
+    </ul>
+
+    <h3 data-i18n="h_suitable_no">❌ NOT suitable for</h3>
+    <ul>
+      <li data-i18n="nosuit_1">Data requiring bit-exact preservation (financial transactions, medical records)</li>
+      <li data-i18n="nosuit_2">Legal evidence or regulatory compliance data</li>
+      <li data-i18n="nosuit_3">Cryptographic keys, secrets, or authentication tokens</li>
+      <li data-i18n="nosuit_4">Any application where data loss is unacceptable</li>
+    </ul>
+  </section>
+
+  <!-- Sample Data -->
+  <section>
+    <h2 data-i18n="h_sample">Sample Data</h2>
+    <pre><code>ts,sensor_id,temperature,humidity,soil_moisture
+2026-01-01T00:00:00Z,field-01,20.1,61.2,33.4
+2026-01-01T01:00:00Z,field-01,19.8,63.0,33.1
+2026-01-01T02:00:00Z,field-01,50.0,62.8,12.0   ← anomaly
+2026-01-01T03:00:00Z,field-01,20.4,60.9,33.6
+2026-01-01T04:00:00Z,field-01,20.2,61.1,33.2
+2026-01-01T00:00:00Z,field-02,18.2,70.1,40.2
+2026-01-01T01:00:00Z,field-02,18.1,70.5,40.0
+2026-01-01T02:00:00Z,field-02,18.3,70.0,39.9
+2026-01-01T03:00:00Z,field-02,18.2,69.8,40.1</code></pre>
+  </section>
+
+  <footer>
+    <p data-i18n="footer">BRK — Breakthrough Container v0.1.0 | MIT License | lossless=false | bit_exact_reconstruction=false | semantic_equivalent=true</p>
+  </footer>
+
+</div>
+
+<script>
+// ── i18n Translations ─────────────────────────────────────────────────────
+const I18N = {
+  en: {
+    tagline: "Semantic / Task-Oriented Reconstruction Container",
+    badge_lossless: "Lossless: false",
+    badge_shannon: "Does NOT break Shannon's theorem",
+    warning_title: "⚠ Important",
+    warning_text: "BRK does NOT break Shannon's theorem. BRK is NOT a universal lossless compressor. BRK stores a contract-bound semantic specification for acceptable reconstruction.",
+    h_what: "What is BRK?",
+    p_what_1: 'BRK (Breakthrough Container) is a file format and Python CLI tool that compresses time-series sensor data into a <strong>contract-bound semantic specification</strong>. Instead of bit-exact compression, BRK preserves statistical properties, trends, daily cycles, and anomalies — enabling approximate reconstruction within defined tolerances.',
+    p_what_2: 'The reconstructed data is <strong>NOT</strong> the original data. It is a semantic-equivalent approximation that satisfies the reconstruction contract. This approach is designed for agricultural and IoT sensor data where statistical fidelity matters more than individual data points.',
+    feat_streaming: "Streaming Processing",
+    feat_streaming_desc: "Two-pass streaming handles 1GB+ CSV files without loading into memory. Welford's algorithm for numerical stability.",
+    feat_anomaly: "Anomaly Detection",
+    feat_anomaly_desc: "Z-score anomaly detection with configurable threshold. Top anomalies preserved as sparse residuals for injection during reconstruction.",
+    feat_contract: "Contract-Bound",
+    feat_contract_desc: "Explicit reconstruction contract with tolerances. Semantic checksum (SHA-256) verifies specification integrity.",
+    feat_local: "100% Local",
+    feat_local_desc: "No cloud, no serverless, no external AI APIs. Runs entirely on your local machine or on-premises server.",
+    h_quickstart: "Quick Start",
+    h_install: "Install",
+    h_compress: "Compress",
+    p_compress_output: 'Output: Output size, budget status, and explicit "Lossless: false" notification.',
+    h_inspect: "Inspect",
+    h_verify: "Verify",
+    h_decompress: "Reconstruct",
+    p_decompress_note: "The reconstructed CSV is a semantic-equivalent approximation, NOT the original data.",
+    h_format: "File Format",
+    th_field: "Field", th_size: "Size", th_desc: "Description",
+    td_magic: '<code>b"BRK1\\n"</code>',
+    td_codec: '<code>0x01</code> = zlib compressed JSON',
+    td_variable: "variable",
+    td_payload: "Compressed canonical JSON container",
+    h_safety_invariants: "Safety Invariants (always enforced)",
+    h_reconstruction: "How Reconstruction Works",
+    p_reconstruction: 'The <code>trend_daily_cycle_anomaly_injection</code> decoder generates approximate values:',
+    recon_step1: '<strong>Base trend</strong>: <code>first + slope_per_second × elapsed_seconds</code>',
+    recon_step2: '<strong>Daily cycle</strong>: <code>hourly_mean[current_hour] - mean</code> (if available)',
+    recon_step3: '<strong>Anomaly injection</strong>: Recorded anomalies replace calculated values at their timestamps',
+    p_reconstruction_note: "This produces a time series that preserves statistical properties and detected anomalies, but is NOT bit-exact to the original.",
+    h_suitable: "When to Use / Not Use BRK",
+    h_suitable_yes: "✅ Suitable for",
+    suit_1: "Agricultural sensor data with regular intervals and daily patterns",
+    suit_2: "IoT environmental monitoring with periodic readings",
+    suit_3: "Time-series data where statistical properties matter more than individual points",
+    suit_4: "Scenarios needing dramatic size reduction with acceptable approximation",
+    h_suitable_no: "❌ NOT suitable for",
+    nosuit_1: "Data requiring bit-exact preservation (financial transactions, medical records)",
+    nosuit_2: "Legal evidence or regulatory compliance data",
+    nosuit_3: "Cryptographic keys, secrets, or authentication tokens",
+    nosuit_4: "Any application where data loss is unacceptable",
+    h_sample: "Sample Data",
+    footer: "BRK — Breakthrough Container v0.1.0 | MIT License | lossless=false | bit_exact_reconstruction=false | semantic_equivalent=true"
+  },
+  ja: {
+    tagline: "セマンティック / タスク指向 再構成コンテナ",
+    badge_lossless: "ロスレス: false",
+    badge_shannon: "Shannonの定理は破りません",
+    warning_title: "⚠ 重要",
+    warning_text: "BRK は Shannon の定理を破るものではありません。BRK は任意データを完全可逆圧縮する形式ではありません。BRK は明示された契約に基づき、意味的・タスク的に十分な再構成仕様を保存する形式です。",
+    h_what: "BRKとは？",
+    p_what_1: 'BRK（Breakthrough Container）は、時系列センサーデータを<strong>契約に基づくセマンティック仕様</strong>に圧縮するファイル形式およびPython CLIツールです。ビット完全圧縮ではなく、BRKは統計的性質、トレンド、日周期、異常を保存し、定義された許容範囲内での近似再構成を可能にします。',
+    p_what_2: '再構成されたデータは元データ<strong>ではありません</strong>。再構成契約を満たすセマンティック等価な近似です。このアプローチは、個々のデータポイントよりも統計的忠実度が重要な農業・IoTセンサーデータ向けに設計されています。',
+    feat_streaming: "ストリーミング処理",
+    feat_streaming_desc: "2パスストリーミングで1GB以上のCSVをメモリに全読み込みせずに処理。Welford法による数値安定性。",
+    feat_anomaly: "異常検出",
+    feat_anomaly_desc: "設定可能な閾値によるZスコア異常検出。上位異常はスパース残差として保存し、再構成時に注入。",
+    feat_contract: "契約ベース",
+    feat_contract_desc: "許容範囲付きの明示的な再構成契約。セマンティックチェックサム（SHA-256）で仕様の完全性を検証。",
+    feat_local: "100% ローカル",
+    feat_local_desc: "クラウド不要、サーバーレス不要、外部AI API不要。ローカルマシンまたはオンプレミスサーバーで完全に動作。",
+    h_quickstart: "クイックスタート",
+    h_install: "インストール",
+    h_compress: "圧縮",
+    p_compress_output: "出力：サイズ、予算ステータス、および「Lossless: false」の明示的通知。",
+    h_inspect: "検査",
+    h_verify: "検証",
+    h_decompress: "再構成",
+    p_decompress_note: "再構成されたCSVはセマンティック等価な近似であり、元データではありません。",
+    h_format: "ファイル形式",
+    th_field: "フィールド", th_size: "サイズ", th_desc: "説明",
+    td_magic: '<code>b"BRK1\\n"</code>',
+    td_codec: '<code>0x01</code> = zlib圧縮JSON',
+    td_variable: "可変",
+    td_payload: "圧縮された正規化JSONコンテナ",
+    h_safety_invariants: "安全不変条件（常に強制）",
+    h_reconstruction: "再構成の仕組み",
+    p_reconstruction: '<code>trend_daily_cycle_anomaly_injection</code> デコーダが近似値を生成します：',
+    recon_step1: '<strong>ベーストレンド</strong>: <code>first + slope_per_second × 経過秒数</code>',
+    recon_step2: '<strong>日周期</strong>: <code>hourly_mean[現在の時刻] - mean</code>（利用可能な場合）',
+    recon_step3: '<strong>異常注入</strong>: 記録された異常が計算値を置換',
+    p_reconstruction_note: "これにより統計的性質と検出された異常を保存する時系列が生成されますが、元データのビット完全一致ではありません。",
+    h_suitable: "BRKの利用場面",
+    h_suitable_yes: "✅ 適している場面",
+    suit_1: "規則的な間隔と日周期がある農業センサーデータ",
+    suit_2: "定期的な読み取りを行うIoT環境モニタリング",
+    suit_3: "個々のポイントより統計的性質が重要な時系列データ",
+    suit_4: "近似を許容して大幅なサイズ削減が必要な場面",
+    h_suitable_no: "❌ 適していない場面",
+    nosuit_1: "ビット完全な保存が必要なデータ（金融取引、医療記録）",
+    nosuit_2: "法的証拠や規制コンプライアンスデータ",
+    nosuit_3: "暗号鍵、シークレット、認証トークン",
+    nosuit_4: "データ損失が許容できないアプリケーション",
+    h_sample: "サンプルデータ",
+    footer: "BRK — Breakthrough Container v0.1.0 | MIT License | lossless=false | bit_exact_reconstruction=false | semantic_equivalent=true"
+  },
+  zh: {
+    tagline: "语义 / 任务导向 重构容器",
+    badge_lossless: "无损: false",
+    badge_shannon: "不违反香农定理",
+    warning_title: "⚠ 重要",
+    warning_text: "BRK 不违反香农定理。BRK 不是通用无损压缩器。BRK 存储基于契约的语义规范，用于可接受的重构。",
+    h_what: "BRK是什么？",
+    p_what_1: 'BRK（突破性容器）是一种文件格式和Python CLI工具，将时序传感器数据压缩为<strong>基于契约的语义规范</strong>。不同于比特精确压缩，BRK保留统计属性、趋势、日周期和异常——在定义的容差范围内实现近似重构。',
+    p_what_2: '重构的数据<strong>不是</strong>原始数据。它是满足重构契约的语义等价近似。此方法专为农业和IoT传感器数据设计，其中统计保真度比单个数据点更重要。',
+    feat_streaming: "流式处理",
+    feat_streaming_desc: "两遍流式处理可处理1GB+的CSV文件而无需加载到内存。Welford算法保证数值稳定性。",
+    feat_anomaly: "异常检测",
+    feat_anomaly_desc: "可配置阈值的Z分数异常检测。顶级异常作为稀疏残差保留，用于重构时注入。",
+    feat_contract: "契约约束",
+    feat_contract_desc: "带有容差的显式重构契约。语义校验和（SHA-256）验证规范完整性。",
+    feat_local: "100% 本地",
+    feat_local_desc: "无需云、无服务器、无外部AI API。完全在本地机器或本地服务器上运行。",
+    h_quickstart: "快速开始",
+    h_install: "安装",
+    h_compress: "压缩",
+    p_compress_output: "输出：文件大小、预算状态和明确的「Lossless: false」通知。",
+    h_inspect: "检查",
+    h_verify: "验证",
+    h_decompress: "重构",
+    p_decompress_note: "重构的CSV是语义等价近似，不是原始数据。",
+    h_format: "文件格式",
+    th_field: "字段", th_size: "大小", th_desc: "描述",
+    td_magic: '<code>b"BRK1\\n"</code>',
+    td_codec: '<code>0x01</code> = zlib压缩JSON',
+    td_variable: "可变",
+    td_payload: "压缩的规范化JSON容器",
+    h_safety_invariants: "安全不变量（始终强制执行）",
+    h_reconstruction: "重构原理",
+    p_reconstruction: '<code>trend_daily_cycle_anomaly_injection</code> 解码器生成近似值：',
+    recon_step1: '<strong>基础趋势</strong>: <code>first + slope_per_second × 已过秒数</code>',
+    recon_step2: '<strong>日周期</strong>: <code>hourly_mean[当前小时] - mean</code>（如果可用）',
+    recon_step3: '<strong>异常注入</strong>: 记录的异常替换计算值',
+    p_reconstruction_note: "这产生保留统计属性和检测异常的时序数据，但不是原始数据的比特精确匹配。",
+    h_suitable: "何时使用/不使用BRK",
+    h_suitable_yes: "✅ 适用于",
+    suit_1: "具有规律间隔和日周期的农业传感器数据",
+    suit_2: "定期读数的IoT环境监测",
+    suit_3: "统计属性比单个数据点更重要的时序数据",
+    suit_4: "需要大幅缩减大小且可接受近似的场景",
+    h_suitable_no: "❌ 不适用于",
+    nosuit_1: "需要比特精确保存的数据（金融交易、医疗记录）",
+    nosuit_2: "法律证据或法规合规数据",
+    nosuit_3: "加密密钥、机密或认证令牌",
+    nosuit_4: "任何数据丢失不可接受的应用",
+    h_sample: "示例数据",
+    footer: "BRK — Breakthrough Container v0.1.0 | MIT License | lossless=false | bit_exact_reconstruction=false | semantic_equivalent=true"
+  },
+  ko: {
+    tagline: "시맨틱 / 태스크 지향 재구성 컨테이너",
+    badge_lossless: "무손실: false",
+    badge_shannon: "Shannon의 정리를 위반하지 않음",
+    warning_title: "⚠ 중요",
+    warning_text: "BRK는 Shannon의 정리를 위반하지 않습니다. BRK는 범용 무손실 압축기가 아닙니다. BRK는 허용 가능한 재구성을 위한 계약 기반 시맨틱 사양을 저장합니다.",
+    h_what: "BRK란?",
+    p_what_1: 'BRK(Breakthrough Container)는 시계열 센서 데이터를 <strong>계약 기반 시맨틱 사양</strong>으로 압축하는 파일 형식 및 Python CLI 도구입니다. 비트 정확 압축 대신 BRK는 통계적 속성, 트렌드, 일일 주기 및 이상을 보존하여 정의된 허용 오차 내에서 근사 재구성을 가능하게 합니다.',
+    p_what_2: '재구성된 데이터는 원본 데이터가 <strong>아닙니다</strong>. 재구성 계약을 만족하는 시맨틱 동등한 근사치입니다. 이 접근 방식은 개별 데이터 포인트보다 통계적 충실도가 중요한 농업 및 IoT 센서 데이터를 위해 설계되었습니다.',
+    feat_streaming: "스트리밍 처리", feat_streaming_desc: "2패스 스트리밍으로 1GB+ CSV를 메모리에 로드하지 않고 처리. Welford 알고리즘으로 수치 안정성 보장.",
+    feat_anomaly: "이상 탐지", feat_anomaly_desc: "구성 가능한 임계값의 Z-점수 이상 탐지. 상위 이상은 희소 잔차로 보존하여 재구성 시 주입.",
+    feat_contract: "계약 기반", feat_contract_desc: "허용 오차가 있는 명시적 재구성 계약. 시맨틱 체크섬(SHA-256)으로 사양 무결성 검증.",
+    feat_local: "100% 로컬", feat_local_desc: "클라우드 불필요, 서버리스 불필요, 외부 AI API 불필요. 로컬 머신 또는 온프레미스 서버에서 완전히 실행.",
+    h_quickstart: "빠른 시작", h_install: "설치", h_compress: "압축",
+    p_compress_output: '출력: 크기, 예산 상태 및 명시적인 "Lossless: false" 알림.',
+    h_inspect: "검사", h_verify: "검증", h_decompress: "재구성",
+    p_decompress_note: "재구성된 CSV는 시맨틱 동등한 근사치이며 원본 데이터가 아닙니다.",
+    h_format: "파일 형식",
+    th_field: "필드", th_size: "크기", th_desc: "설명",
+    td_magic: '<code>b"BRK1\\n"</code>', td_codec: '<code>0x01</code> = zlib 압축 JSON',
+    td_variable: "가변", td_payload: "압축된 정규화 JSON 컨테이너",
+    h_safety_invariants: "안전 불변량 (항상 강제)",
+    h_reconstruction: "재구성 원리",
+    p_reconstruction: '<code>trend_daily_cycle_anomaly_injection</code> 디코더가 근사값을 생성합니다:',
+    recon_step1: '<strong>기본 트렌드</strong>: <code>first + slope_per_second × 경과 초</code>',
+    recon_step2: '<strong>일일 주기</strong>: <code>hourly_mean[현재 시간] - mean</code> (사용 가능한 경우)',
+    recon_step3: '<strong>이상 주입</strong>: 기록된 이상이 계산값을 대체',
+    p_reconstruction_note: "이것은 통계적 속성과 탐지된 이상을 보존하는 시계열을 생성하지만 원본 데이터와 비트 정확히 일치하지 않습니다.",
+    h_suitable: "BRK 사용/미사용 시기",
+    h_suitable_yes: "✅ 적합한 경우",
+    suit_1: "규칙적인 간격과 일일 주기가 있는 농업 센서 데이터",
+    suit_2: "정기적 판독값의 IoT 환경 모니터링",
+    suit_3: "개별 포인트보다 통계적 속성이 중요한 시계열 데이터",
+    suit_4: "근사를 허용하면서 극적인 크기 축소가 필요한 시나리오",
+    h_suitable_no: "❌ 부적합한 경우",
+    nosuit_1: "비트 정확 보존이 필요한 데이터 (금융 거래, 의료 기록)",
+    nosuit_2: "법적 증거 또는 규제 준수 데이터",
+    nosuit_3: "암호화 키, 비밀 또는 인증 토큰",
+    nosuit_4: "데이터 손실이 허용되지 않는 모든 애플리케이션",
+    h_sample: "샘플 데이터",
+    footer: "BRK — Breakthrough Container v0.1.0 | MIT License | lossless=false | bit_exact_reconstruction=false | semantic_equivalent=true"
+  },
+  fr: {
+    tagline: "Conteneur de reconstruction sémantique / orienté tâches",
+    badge_lossless: "Sans perte : false",
+    badge_shannon: "Ne viole PAS le théorème de Shannon",
+    warning_title: "⚠ Important",
+    warning_text: "BRK ne viole pas le théorème de Shannon. BRK n'est pas un compresseur sans perte universel. BRK stocke une spécification sémantique liée par contrat pour une reconstruction acceptable.",
+    h_what: "Qu'est-ce que BRK ?",
+    p_what_1: 'BRK (Breakthrough Container) est un format de fichier et un outil CLI Python qui compresse les données de capteurs séries temporelles en une <strong>spécification sémantique liée par contrat</strong>. Au lieu d\'une compression bit-exacte, BRK préserve les propriétés statistiques, les tendances, les cycles quotidiens et les anomalies.',
+    p_what_2: 'Les données reconstruites ne sont <strong>PAS</strong> les données originales. Il s\'agit d\'une approximation sémantiquement équivalente qui satisfait le contrat de reconstruction.',
+    feat_streaming: "Traitement en flux", feat_streaming_desc: "Traitement en deux passes pour les CSV de plus de 1 Go sans chargement en mémoire. Algorithme de Welford pour la stabilité numérique.",
+    feat_anomaly: "Détection d'anomalies", feat_anomaly_desc: "Détection d'anomalies par z-score avec seuil configurable. Les anomalies principales sont préservées comme résidus creux.",
+    feat_contract: "Lié par contrat", feat_contract_desc: "Contrat de reconstruction explicite avec tolérances. Somme de contrôle sémantique (SHA-256) vérifiant l'intégrité.",
+    feat_local: "100% Local", feat_local_desc: "Pas de cloud, pas de serverless, pas d'API IA externe. Fonctionne entièrement en local.",
+    h_quickstart: "Démarrage rapide", h_install: "Installation", h_compress: "Compresser",
+    p_compress_output: 'Sortie : taille, statut du budget et notification explicite "Lossless: false".',
+    h_inspect: "Inspecter", h_verify: "Vérifier", h_decompress: "Reconstruire",
+    p_decompress_note: "Le CSV reconstruit est une approximation sémantiquement équivalente, PAS les données originales.",
+    h_format: "Format de fichier",
+    th_field: "Champ", th_size: "Taille", th_desc: "Description",
+    td_magic: '<code>b"BRK1\\n"</code>', td_codec: '<code>0x01</code> = JSON compressé zlib',
+    td_variable: "variable", td_payload: "Conteneur JSON canonique compressé",
+    h_safety_invariants: "Invariants de sécurité (toujours appliqués)",
+    h_reconstruction: "Comment fonctionne la reconstruction",
+    p_reconstruction: 'Le décodeur <code>trend_daily_cycle_anomaly_injection</code> génère des valeurs approximatives :',
+    recon_step1: '<strong>Tendance de base</strong> : <code>first + slope_per_second × secondes_écoulées</code>',
+    recon_step2: '<strong>Cycle quotidien</strong> : <code>hourly_mean[heure_actuelle] - mean</code> (si disponible)',
+    recon_step3: '<strong>Injection d\'anomalies</strong> : Les anomalies enregistrées remplacent les valeurs calculées',
+    p_reconstruction_note: "Cela produit une série temporelle qui préserve les propriétés statistiques et les anomalies détectées, mais n'est pas bit-exacte par rapport à l'original.",
+    h_suitable: "Quand utiliser / ne pas utiliser BRK",
+    h_suitable_yes: "✅ Approprié pour",
+    suit_1: "Données de capteurs agricoles avec intervalles réguliers",
+    suit_2: "Surveillance environnementale IoT avec lectures périodiques",
+    suit_3: "Données séries temporelles où les propriétés statistiques comptent plus que les points individuels",
+    suit_4: "Scénarios nécessitant une réduction de taille importante avec approximation acceptable",
+    h_suitable_no: "❌ PAS approprié pour",
+    nosuit_1: "Données nécessitant une préservation bit-exacte (transactions financières, dossiers médicaux)",
+    nosuit_2: "Preuves légales ou données de conformité réglementaire",
+    nosuit_3: "Clés cryptographiques, secrets ou jetons d'authentification",
+    nosuit_4: "Toute application où la perte de données est inacceptable",
+    h_sample: "Exemple de données",
+    footer: "BRK — Breakthrough Container v0.1.0 | MIT License | lossless=false | bit_exact_reconstruction=false | semantic_equivalent=true"
+  },
+  de: {
+    tagline: "Semantischer / Aufgabenorientierter Rekonstruktionscontainer",
+    badge_lossless: "Verlustfrei: false", badge_shannon: "Verletzt NICHT Shannons Theorem",
+    warning_title: "⚠ Wichtig",
+    warning_text: "BRK verletzt Shannons Theorem nicht. BRK ist kein universeller verlustfreier Kompressor. BRK speichert eine vertragsgebundene semantische Spezifikation für akzeptable Rekonstruktion.",
+    h_what: "Was ist BRK?",
+    p_what_1: 'BRK (Breakthrough Container) ist ein Dateiformat und Python-CLI-Tool, das Zeitreihen-Sensordaten in eine <strong>vertragsgebundene semantische Spezifikation</strong> komprimiert. Anstatt bit-exakter Komprimierung bewahrt BRK statistische Eigenschaften, Trends, Tageszyklen und Anomalien.',
+    p_what_2: 'Die rekonstruierten Daten sind <strong>NICHT</strong> die Originaldaten. Es handelt sich um eine semantisch äquivalente Näherung, die den Rekonstruktionsvertrag erfüllt.',
+    feat_streaming: "Stream-Verarbeitung", feat_streaming_desc: "Zweipass-Streaming verarbeitet 1GB+ CSV ohne Speicherladung. Welford-Algorithmus für numerische Stabilität.",
+    feat_anomaly: "Anomalieerkennung", feat_anomaly_desc: "Z-Score-Anomalieerkennung mit konfigurierbarem Schwellenwert. Top-Anomalien als Sparse-Residuen erhalten.",
+    feat_contract: "Vertragsgebunden", feat_contract_desc: "Expliziter Rekonstruktionsvertrag mit Toleranzen. Semantische Prüfsumme (SHA-256) verifiziert Spezifikationsintegrität.",
+    feat_local: "100% Lokal", feat_local_desc: "Keine Cloud, kein Serverless, keine externen KI-APIs. Läuft vollständig lokal.",
+    h_quickstart: "Schnellstart", h_install: "Installation", h_compress: "Komprimieren",
+    p_compress_output: 'Ausgabe: Größe, Budget-Status und explizite "Lossless: false"-Benachrichtigung.',
+    h_inspect: "Inspizieren", h_verify: "Verifizieren", h_decompress: "Rekonstruieren",
+    p_decompress_note: "Die rekonstruierte CSV ist eine semantisch äquivalente Näherung, NICHT die Originaldaten.",
+    h_format: "Dateiformat", th_field: "Feld", th_size: "Größe", th_desc: "Beschreibung",
+    td_magic: '<code>b"BRK1\\n"</code>', td_codec: '<code>0x01</code> = zlib-komprimiertes JSON',
+    td_variable: "variabel", td_payload: "Komprimierter kanonischer JSON-Container",
+    h_safety_invariants: "Sicherheitsinvarianten (immer erzwungen)",
+    h_reconstruction: "Wie Rekonstruktion funktioniert",
+    p_reconstruction: 'Der <code>trend_daily_cycle_anomaly_injection</code>-Dekoder erzeugt Näherungswerte:',
+    recon_step1: '<strong>Basistrend</strong>: <code>first + slope_per_second × verstrichene_Sekunden</code>',
+    recon_step2: '<strong>Tageszyklus</strong>: <code>hourly_mean[aktuelle_Stunde] - mean</code> (falls verfügbar)',
+    recon_step3: '<strong>Anomalie-Injektion</strong>: Aufgezeichnete Anomalien ersetzen berechnete Werte',
+    p_reconstruction_note: "Dies erzeugt eine Zeitreihe, die statistische Eigenschaften und erkannte Anomalien bewahrt, aber nicht bit-exakt mit dem Original übereinstimmt.",
+    h_suitable: "Wann BRK verwenden / nicht verwenden",
+    h_suitable_yes: "✅ Geeignet für", h_suitable_no: "❌ NICHT geeignet für",
+    suit_1: "Landwirtschaftliche Sensordaten mit regelmäßigen Intervallen", suit_2: "IoT-Umweltüberwachung mit periodischen Messungen",
+    suit_3: "Zeitreihendaten, bei denen statistische Eigenschaften wichtiger sind als einzelne Punkte", suit_4: "Szenarien mit akzeptabler Näherung und drastischer Größenreduktion",
+    nosuit_1: "Daten, die bit-exakte Bewahrung erfordern (Finanztransaktionen, Krankenakten)", nosuit_2: "Beweismittel oder Compliance-Daten",
+    nosuit_3: "Kryptografische Schlüssel, Geheimnisse oder Authentifizierungstoken", nosuit_4: "Jede Anwendung, bei der Datenverlust inakzeptabel ist",
+    h_sample: "Beispieldaten",
+    footer: "BRK — Breakthrough Container v0.1.0 | MIT License | lossless=false | bit_exact_reconstruction=false | semantic_equivalent=true"
+  },
+  es: {
+    tagline: "Contenedor de reconstrucción semántica / orientado a tareas",
+    badge_lossless: "Sin pérdida: false", badge_shannon: "NO viola el teorema de Shannon",
+    warning_title: "⚠ Importante",
+    warning_text: "BRK no viola el teorema de Shannon. BRK no es un compresor sin pérdida universal. BRK almacena una especificación semántica vinculada por contrato para reconstrucción aceptable.",
+    h_what: "¿Qué es BRK?",
+    p_what_1: 'BRK (Breakthrough Container) es un formato de archivo y herramienta CLI Python que comprime datos de sensores de series temporales en una <strong>especificación semántica vinculada por contrato</strong>. En lugar de compresión bit-exacta, BRK preserva propiedades estadísticas, tendencias, ciclos diarios y anomalías.',
+    p_what_2: 'Los datos reconstruidos <strong>NO</strong> son los datos originales. Es una aproximación semánticamente equivalente que satisface el contrato de reconstrucción.',
+    feat_streaming: "Procesamiento en flujo", feat_streaming_desc: "Procesamiento en dos pasadas para CSV de más de 1GB sin cargar en memoria. Algoritmo de Welford para estabilidad numérica.",
+    feat_anomaly: "Detección de anomalías", feat_anomaly_desc: "Detección por z-score con umbral configurable. Anomalías principales preservadas como residuos dispersos.",
+    feat_contract: "Vinculado por contrato", feat_contract_desc: "Contrato explícito de reconstrucción con tolerancias. Checksum semántico (SHA-256) verifica integridad de especificación.",
+    feat_local: "100% Local", feat_local_desc: "Sin nube, sin serverless, sin APIs de IA externas. Funciona completamente en local.",
+    h_quickstart: "Inicio rápido", h_install: "Instalación", h_compress: "Comprimir",
+    p_compress_output: 'Salida: tamaño, estado del presupuesto y notificación explícita de "Lossless: false".',
+    h_inspect: "Inspeccionar", h_verify: "Verificar", h_decompress: "Reconstruir",
+    p_decompress_note: "El CSV reconstruido es una aproximación semánticamente equivalente, NO los datos originales.",
+    h_format: "Formato de archivo", th_field: "Campo", th_size: "Tamaño", th_desc: "Descripción",
+    td_magic: '<code>b"BRK1\\n"</code>', td_codec: '<code>0x01</code> = JSON comprimido con zlib',
+    td_variable: "variable", td_payload: "Contenedor JSON canónico comprimido",
+    h_safety_invariants: "Invariantes de seguridad (siempre aplicados)",
+    h_reconstruction: "Cómo funciona la reconstrucción",
+    p_reconstruction: 'El decodificador <code>trend_daily_cycle_anomaly_injection</code> genera valores aproximados:',
+    recon_step1: '<strong>Tendencia base</strong>: <code>first + slope_per_second × segundos_transcurridos</code>',
+    recon_step2: '<strong>Ciclo diario</strong>: <code>hourly_mean[hora_actual] - mean</code> (si disponible)',
+    recon_step3: '<strong>Inyección de anomalías</strong>: Las anomalías registradas reemplazan los valores calculados',
+    p_reconstruction_note: "Esto produce una serie temporal que preserva propiedades estadísticas y anomalías detectadas, pero no es bit-exacta respecto al original.",
+    h_suitable: "Cuándo usar / no usar BRK",
+    h_suitable_yes: "✅ Adecuado para", h_suitable_no: "❌ NO adecuado para",
+    suit_1: "Datos de sensores agrícolas con intervalos regulares", suit_2: "Monitoreo ambiental IoT con lecturas periódicas",
+    suit_3: "Datos de series temporales donde las propiedades estadísticas importan más que puntos individuales", suit_4: "Escenarios que necesitan reducción de tamaño drástica con aproximación aceptable",
+    nosuit_1: "Datos que requieren preservación bit-exacta (transacciones financieras, registros médicos)", nosuit_2: "Evidencia legal o datos de cumplimiento regulatorio",
+    nosuit_3: "Claves criptográficas, secretos o tokens de autenticación", nosuit_4: "Cualquier aplicación donde la pérdida de datos sea inaceptable",
+    h_sample: "Datos de ejemplo",
+    footer: "BRK — Breakthrough Container v0.1.0 | MIT License | lossless=false | bit_exact_reconstruction=false | semantic_equivalent=true"
+  },
+  pt: {
+    tagline: "Contêiner de reconstrução semântica / orientado a tarefas",
+    badge_lossless: "Sem perdas: false", badge_shannon: "NÃO viola o teorema de Shannon",
+    warning_title: "⚠ Importante",
+    warning_text: "BRK não viola o teorema de Shannon. BRK não é um compressor sem perdas universal. BRK armazena uma especificação semântica vinculada por contrato para reconstrução aceitável.",
+    h_what: "O que é BRK?",
+    p_what_1: 'BRK (Breakthrough Container) é um formato de arquivo e ferramenta CLI Python que comprime dados de sensores de séries temporais em uma <strong>especificação semântica vinculada por contrato</strong>.',
+    p_what_2: 'Os dados reconstruídos <strong>NÃO</strong> são os dados originais. É uma aproximação semanticamente equivalente que satisfaz o contrato de reconstrução.',
+    feat_streaming: "Processamento em fluxo", feat_streaming_desc: "Processamento em duas passadas para CSV de mais de 1GB sem carregar na memória.",
+    feat_anomaly: "Detecção de anomalias", feat_anomaly_desc: "Detecção por z-score com limiar configurável. Anomalias principais preservadas como resíduos esparsos.",
+    feat_contract: "Vinculado por contrato", feat_contract_desc: "Contrato explícito de reconstrução com tolerâncias. Checksum semântico (SHA-256) verifica integridade.",
+    feat_local: "100% Local", feat_local_desc: "Sem nuvem, sem serverless, sem APIs de IA externas. Funciona inteiramente local.",
+    h_quickstart: "Início rápido", h_install: "Instalação", h_compress: "Comprimir",
+    p_compress_output: 'Saída: tamanho, status do orçamento e notificação explícita de "Lossless: false".',
+    h_inspect: "Inspecionar", h_verify: "Verificar", h_decompress: "Reconstruir",
+    p_decompress_note: "O CSV reconstruído é uma aproximação semanticamente equivalente, NÃO os dados originais.",
+    h_format: "Formato do arquivo", th_field: "Campo", th_size: "Tamanho", th_desc: "Descrição",
+    td_magic: '<code>b"BRK1\\n"</code>', td_codec: '<code>0x01</code> = JSON comprimido com zlib',
+    td_variable: "variável", td_payload: "Contêiner JSON canônico comprimido",
+    h_safety_invariants: "Invariáveis de segurança (sempre aplicados)",
+    h_reconstruction: "Como funciona a reconstrução",
+    p_reconstruction: 'O decodificador <code>trend_daily_cycle_anomaly_injection</code> gera valores aproximados:',
+    recon_step1: '<strong>Tendência base</strong>: <code>first + slope_per_second × segundos_decorridos</code>',
+    recon_step2: '<strong>Ciclo diário</strong>: <code>hourly_mean[hora_atual] - mean</code> (se disponível)',
+    recon_step3: '<strong>Injeção de anomalias</strong>: Anomalias registradas substituem valores calculados',
+    p_reconstruction_note: "Isso produz uma série temporal que preserva propriedades estatísticas e anomalias detectadas, mas não é bit-exata em relação ao original.",
+    h_suitable: "Quando usar / não usar BRK",
+    h_suitable_yes: "✅ Adequado para", h_suitable_no: "❌ NÃO adequado para",
+    suit_1: "Dados de sensores agrícolas com intervalos regulares", suit_2: "Monitoramento ambiental IoT com leituras periódicas",
+    suit_3: "Dados de séries temporais onde propriedades estatísticas importam mais que pontos individuais", suit_4: "Cenários necessitando redução drástica de tamanho com aproximação aceitável",
+    nosuit_1: "Dados que requerem preservação bit-exata (transações financeiras, registros médicos)", nosuit_2: "Evidência legal ou dados de conformidade regulatória",
+    nosuit_3: "Chaves criptográficas, segredos ou tokens de autenticação", nosuit_4: "Qualquer aplicação onde perda de dados seja inaceitável",
+    h_sample: "Dados de exemplo",
+    footer: "BRK — Breakthrough Container v0.1.0 | MIT License | lossless=false | bit_exact_reconstruction=false | semantic_equivalent=true"
+  },
+  it: {
+    tagline: "Container di ricostruzione semantica / orientato ai task",
+    badge_lossless: "Senza perdita: false", badge_shannon: "NON viola il teorema di Shannon",
+    warning_title: "⚠ Importante",
+    warning_text: "BRK non viola il teorema di Shannon. BRK non è un compressore senza perdita universale. BRK memorizza una specifica semantica vincolata da contratto per una ricostruzione accettabile.",
+    h_what: "Cos'è BRK?",
+    p_what_1: 'BRK (Breakthrough Container) è un formato di file e strumento CLI Python che comprime i dati dei sensori di serie temporali in una <strong>specifica semantica vincolata da contratto</strong>.',
+    p_what_2: 'I dati ricostruiti <strong>NON</strong> sono i dati originali. È un\'approssimazione semanticamente equivalente che soddisfa il contratto di ricostruzione.',
+    feat_streaming: "Elaborazione in streaming", feat_streaming_desc: "Elaborazione in due passate per CSV superiori a 1GB senza caricamento in memoria.",
+    feat_anomaly: "Rilevamento anomalie", feat_anomaly_desc: "Rilevamento z-score con soglia configurabile. Anomalie principali preservate come residui sparsi.",
+    feat_contract: "Vincolato da contratto", feat_contract_desc: "Contratto esplicito di ricostruzione con tolleranze. Checksum semantico (SHA-256) verifica l'integrità.",
+    feat_local: "100% Locale", feat_local_desc: "Nessun cloud, nessun serverless, nessuna API IA esterna. Funziona interamente in locale.",
+    h_quickstart: "Avvio rapido", h_install: "Installazione", h_compress: "Comprimere",
+    p_compress_output: 'Output: dimensione, stato del budget e notifica esplicita "Lossless: false".',
+    h_inspect: "Ispezionare", h_verify: "Verificare", h_decompress: "Ricostruire",
+    p_decompress_note: "Il CSV ricostruito è un'approssimazione semanticamente equivalente, NON i dati originali.",
+    h_format: "Formato file", th_field: "Campo", th_size: "Dimensione", th_desc: "Descrizione",
+    td_magic: '<code>b"BRK1\\n"</code>', td_codec: '<code>0x01</code> = JSON compresso zlib',
+    td_variable: "variabile", td_payload: "Container JSON canonico compresso",
+    h_safety_invariants: "Invarianti di sicurezza (sempre applicati)",
+    h_reconstruction: "Come funziona la ricostruzione",
+    p_reconstruction: 'Il decodificatore <code>trend_daily_cycle_anomaly_injection</code> genera valori approssimati:',
+    recon_step1: '<strong>Tendenza base</strong>: <code>first + slope_per_second × secondi_trascorsi</code>',
+    recon_step2: '<strong>Ciclo giornaliero</strong>: <code>hourly_mean[ora_attuale] - mean</code> (se disponibile)',
+    recon_step3: '<strong>Iniezione anomalie</strong>: Le anomalie registrate sostituiscono i valori calcolati',
+    p_reconstruction_note: "Ciò produce una serie temporale che preserva le proprietà statistiche e le anomalie rilevate, ma non è bit-exact rispetto all'originale.",
+    h_suitable: "Quando usare / non usare BRK",
+    h_suitable_yes: "✅ Adatto per", h_suitable_no: "❌ NON adatto per",
+    suit_1: "Dati di sensori agricoli con intervalli regolari", suit_2: "Monitoraggio ambientale IoT con letture periodiche",
+    suit_3: "Dati di serie temporali dove le proprietà statistiche contano più dei singoli punti", suit_4: "Scenari che necessitano di riduzione drastica delle dimensioni con approssimazione accettabile",
+    nosuit_1: "Dati che richiedono preservazione bit-exact (transazioni finanziarie, cartelle cliniche)", nosuit_2: "Prove legali o dati di conformità normativa",
+    nosuit_3: "Chiavi crittografiche, segreti o token di autenticazione", nosuit_4: "Qualsiasi applicazione dove la perdita di dati è inaccettabile",
+    h_sample: "Dati di esempio",
+    footer: "BRK — Breakthrough Container v0.1.0 | MIT License | lossless=false | bit_exact_reconstruction=false | semantic_equivalent=true"
+  },
+  ru: {
+    tagline: "Семантический / задачно-ориентированный контейнер реконструкции",
+    badge_lossless: "Без потерь: false", badge_shannon: "НЕ нарушает теорему Шеннона",
+    warning_title: "⚠ Важно",
+    warning_text: "BRK не нарушает теорему Шеннона. BRK не является универсальным компрессором без потерь. BRK хранит связанную контрактом семантическую спецификацию для приемлемой реконструкции.",
+    h_what: "Что такое BRK?",
+    p_what_1: 'BRK (Breakthrough Container) — это формат файла и инструмент CLI Python, который сжимает данные датчиков временных рядов в <strong>связанную контрактом семантическую спецификацию</strong>.',
+    p_what_2: 'Восстановленные данные — <strong>НЕ</strong> оригинальные данные. Это семантически эквивалентное приближение, удовлетворяющее контракту реконструкции.',
+    feat_streaming: "Потоковая обработка", feat_streaming_desc: "Двухпроходная обработка CSV более 1 ГБ без загрузки в память. Алгоритм Уэлфорда для числовой стабильности.",
+    feat_anomaly: "Обнаружение аномалий", feat_anomaly_desc: "Обнаружение аномалий по z-оценке с настраиваемым порогом. Основные аномалии сохраняются как разреженные остатки.",
+    feat_contract: "Связанный контрактом", feat_contract_desc: "Явный контракт реконструкции с допусками. Семантическая контрольная сумма (SHA-256) проверяет целостность.",
+    feat_local: "100% Локально", feat_local_desc: "Без облака, без серверлесс, без внешних API ИИ. Работает полностью локально.",
+    h_quickstart: "Быстрый старт", h_install: "Установка", h_compress: "Сжатие",
+    p_compress_output: 'Вывод: размер, статус бюджета и явное уведомление "Lossless: false".',
+    h_inspect: "Инспекция", h_verify: "Проверка", h_decompress: "Реконструкция",
+    p_decompress_note: "Восстановленный CSV — семантически эквивалентное приближение, НЕ оригинальные данные.",
+    h_format: "Формат файла", th_field: "Поле", th_size: "Размер", th_desc: "Описание",
+    td_magic: '<code>b"BRK1\\n"</code>', td_codec: '<code>0x01</code> = zlib-сжатый JSON',
+    td_variable: "переменный", td_payload: "Сжатый канонический JSON-контейнер",
+    h_safety_invariants: "Инварианты безопасности (всегда применяются)",
+    h_reconstruction: "Как работает реконструкция",
+    p_reconstruction: 'Декодер <code>trend_daily_cycle_anomaly_injection</code> генерирует приближённые значения:',
+    recon_step1: '<strong>Базовый тренд</strong>: <code>first + slope_per_second × прошедшие_секунды</code>',
+    recon_step2: '<strong>Суточный цикл</strong>: <code>hourly_mean[текущий_час] - mean</code> (если доступно)',
+    recon_step3: '<strong>Инъекция аномалий</strong>: Записанные аномалии заменяют вычисленные значения',
+    p_reconstruction_note: "Это создаёт временной ряд, сохраняющий статистические свойства и обнаруженные аномалии, но не побитово точный по сравнению с оригиналом.",
+    h_suitable: "Когда использовать / не использовать BRK",
+    h_suitable_yes: "✅ Подходит для", h_suitable_no: "❌ НЕ подходит для",
+    suit_1: "Данные сельскохозяйственных датчиков с регулярными интервалами", suit_2: "Мониторинг окружающей среды IoT с периодическими показаниями",
+    suit_3: "Данные временных рядов, где статистические свойства важнее отдельных точек", suit_4: "Сценарии, требующие радикального уменьшения размера с приемлемым приближением",
+    nosuit_1: "Данные, требующие побитового сохранения (финансовые транзакции, медицинские карты)", nosuit_2: "Юридические доказательства или данные нормативного соответствия",
+    nosuit_3: "Криптографические ключи, секреты или токены аутентификации", nosuit_4: "Любое приложение, где потеря данных недопустима",
+    h_sample: "Пример данных",
+    footer: "BRK — Breakthrough Container v0.1.0 | MIT License | lossless=false | bit_exact_reconstruction=false | semantic_equivalent=true"
+  },
+  ar: {
+    tagline: "حاوية إعادة بناء دلالية / موجهة بالمهام",
+    badge_lossless: "بدون فقدان: false", badge_shannon: "لا ينتهك نظرية شانون",
+    warning_title: "⚠ مهم",
+    warning_text: "BRK لا ينتهك نظرية شانون. BRK ليس ضاغطًا عالميًا بدون فقدان. BRK يخزن مواصفة دلالية مرتبطة بعقد لإعادة بناء مقبولة.",
+    h_what: "ما هو BRK؟",
+    p_what_1: 'BRK (Breakthrough Container) هو تنسيق ملف وأداة CLI بايثون تضغط بيانات المستشعرات الزمنية في <strong>مواصفة دلالية مرتبطة بعقد</strong>.',
+    p_what_2: 'البيانات المعاد بناؤها <strong>ليست</strong> البيانات الأصلية. إنها تقريب دلالي مكافئ يلبي عقد إعادة البناء.',
+    feat_streaming: "معالجة التدفق", feat_streaming_desc: "معالجة تمريرتين لملفات CSV تزيد عن 1 جيجابايت دون التحميل في الذاكرة.",
+    feat_anomaly: "كشف الشذوذ", feat_anomaly_desc: "كشف شذوذ z-score بعتبة قابلة للتكوين. الشذوذ الرئيسي محفوظ كبقايا متفرقة.",
+    feat_contract: "مرتبط بعقد", feat_contract_desc: "عقد إعادة بناء صريح مع تسامحات. المجموع الاختباري الدلالي (SHA-256) يتحقق من السلامة.",
+    feat_local: "محلي بالكامل", feat_local_desc: "بدون سحابة، بدون خادم، بدون واجهات برمجة تطبيقات ذكاء اصطناعي خارجية. يعمل بالكامل محليًا.",
+    h_quickstart: "البدء السريع", h_install: "التثبيت", h_compress: "الضغط",
+    p_compress_output: 'الإخراج: الحجم، حالة الميزانية، وإشعار صريح "Lossless: false".',
+    h_inspect: "الفحص", h_verify: "التحقق", h_decompress: "إعادة البناء",
+    p_decompress_note: "CSV المعاد بناؤه هو تقريب دلالي مكافئ، ليس البيانات الأصلية.",
+    h_format: "تنسيق الملف", th_field: "الحقل", th_size: "الحجم", th_desc: "الوصف",
+    td_magic: '<code>b"BRK1\\n"</code>', td_codec: '<code>0x01</code> = JSON مضغوط بـ zlib',
+    td_variable: "متغير", td_payload: "حاوية JSON أساسية مضغوطة",
+    h_safety_invariants: "الثوابت الأمنية (تُطبق دائمًا)",
+    h_reconstruction: "كيف تعمل إعادة البناء",
+    p_reconstruction: 'يفك التشفير <code>trend_daily_cycle_anomaly_injection</code> القيم التقريبية:',
+    recon_step1: '<strong>الاتجاه الأساسي</strong>: <code>first + slope_per_second × الثواني_المنقضية</code>',
+    recon_step2: '<strong>الدورة اليومية</strong>: <code>hourly_mean[الساعة_الحالية] - mean</code> (إذا توفرت)',
+    recon_step3: '<strong>حقن الشذوذ</strong>: الشذوذ المسجل يحل محل القيم المحسوبة',
+    p_reconstruction_note: "ينتج هذا سلسلة زمنية تحافظ على الخصائص الإحصائية والشذوذ المكتشف، لكنها ليست مطابقة تمامًا للأصل.",
+    h_suitable: "متى تستخدم / لا تستخدم BRK",
+    h_suitable_yes: "✅ مناسب لـ", h_suitable_no: "❌ غير مناسب لـ",
+    suit_1: "بيانات المستشعرات الزراعية بفواصل منتظمة", suit_2: "مراقبة بيئة إنترنت الأشياء بقراءات دورية",
+    suit_3: "بيانات السلاسل الزمنية حيث الخصائص الإحصائية أهم من النقاط الفردية", suit_4: "السيناريوهات التي تحتاج تقليل حجم كبير مع تقريب مقبول",
+    nosuit_1: "البيانات التي تتطلب حفظًا دقيقًا للبت (المعاملات المالية، السجلات الطبية)", nosuit_2: "الأدلة القانونية أو بيانات الامتثال التنظيمي",
+    nosuit_3: "المفاتيح التشفيرية أو الأسرار أو رموز المصادقة", nosuit_4: "أي تطبيق يكون فيه فقدان البيانات غير مقبول",
+    h_sample: "بيانات نموذجية",
+    footer: "BRK — Breakthrough Container v0.1.0 | MIT License | lossless=false | bit_exact_reconstruction=false | semantic_equivalent=true"
+  },
+  th: {
+    tagline: "คอนเทนเนอร์การสร้างใหม่เชิงความหมาย / ตามภารกิจ",
+    badge_lossless: "ไม่สูญเสีย: false", badge_shannon: "ไม่ละเมิดทฤษฎีของแชนนอน",
+    warning_title: "⚠ สำคัญ",
+    warning_text: "BRK ไม่ละเมิดทฤษฎีของแชนนอน BRK ไม่ใช่ตัวบีบอัดแบบไม่สูญเสียสากล BRK เก็บข้อมูลจำเพาะเชิงความหมายที่ผูกกับสัญญาสำหรับการสร้างใหม่ที่ยอมรับได้",
+    h_what: "BRK คืออะไร?",
+    p_what_1: 'BRK (Breakthrough Container) เป็นรูปแบบไฟล์และเครื่องมือ CLI Python ที่บีบอัดข้อมูลเซ็นเซอร์อนุกรมเวลาเป็น <strong>ข้อมูลจำเพาะเชิงความหมายที่ผูกกับสัญญา</strong>',
+    p_what_2: 'ข้อมูลที่สร้างใหม่<strong>ไม่ใช่</strong>ข้อมูลดั้งเดิม เป็นการประมาณที่เทียบเท่าเชิงความหมายที่ตอบสนองสัญญาการสร้างใหม่',
+    feat_streaming: "การประมวลผลแบบสตรีมมิ่ง", feat_streaming_desc: "การประมวลผลสองพาสสำหรับ CSV ขนาดเกิน 1GB โดยไม่โหลดลงหน่วยความจำ",
+    feat_anomaly: "การตรวจจับความผิดปกติ", feat_anomaly_desc: "การตรวจจับ z-score ด้วยเกณฑ์ที่ปรับได้ ความผิดปกติหลักถูกเก็บเป็นส่วนที่เหลือแบบกระจาย",
+    feat_contract: "ผูกกับสัญญา", feat_contract_desc: "สัญญาการสร้างใหม่ที่ชัดเจนพร้อมค่ายอมรับ เช็คซัมเชิงความหมาย (SHA-256) ตรวจสอบความสมบูรณ์",
+    feat_local: "100% ภายใน", feat_local_desc: "ไม่มีคลาวด์ ไม่มีเซิร์ฟเวอร์เลส ไม่มี API AI ภายนอก ทำงานภายในเครื่องทั้งหมด",
+    h_quickstart: "เริ่มต้นใช้งาน", h_install: "การติดตั้ง", h_compress: "บีบอัด",
+    p_compress_output: 'ผลลัพธ์: ขนาด สถานะงบประมาณ และการแจ้งเตือน "Lossless: false" อย่างชัดเจน',
+    h_inspect: "ตรวจสอบ", h_verify: "ยืนยัน", h_decompress: "สร้างใหม่",
+    p_decompress_note: "CSV ที่สร้างใหม่เป็นการประมาณที่เทียบเท่าเชิงความหมาย ไม่ใช่ข้อมูลดั้งเดิม",
+    h_format: "รูปแบบไฟล์", th_field: "ฟิลด์", th_size: "ขนาด", th_desc: "คำอธิบาย",
+    td_magic: '<code>b"BRK1\\n"</code>', td_codec: '<code>0x01</code> = JSON บีบอัด zlib',
+    td_variable: "ผันแปร", td_payload: "คอนเทนเนอร์ JSON บีบอัด",
+    h_safety_invariants: "ตัวไม่เปลี่ยนแปลงด้านความปลอดภัย (บังคับเสมอ)",
+    h_reconstruction: "การสร้างใหม่ทำงานอย่างไร",
+    p_reconstruction: 'ตัวถอดรหัส <code>trend_daily_cycle_anomaly_injection</code> สร้างค่าโดยประมาณ:',
+    recon_step1: '<strong>แนวโน้มฐาน</strong>: <code>first + slope_per_second × วินาทีที่ผ่านไป</code>',
+    recon_step2: '<strong>วัฏจักรรายวัน</strong>: <code>hourly_mean[ชั่วโมงปัจจุบัน] - mean</code> (หากมี)',
+    recon_step3: '<strong>การฉีดความผิดปกติ</strong>: ความผิดปกติที่บันทึกแทนที่ค่าที่คำนวณ',
+    p_reconstruction_note: "สร้างอนุกรมเวลาที่รักษาคุณสมบัติทางสถิติและความผิดปกติที่ตรวจพบ แต่ไม่ตรงกับต้นฉบับแบบบิต",
+    h_suitable: "เมื่อใช้ / ไม่ใช้ BRK",
+    h_suitable_yes: "✅ เหมาะสำหรับ", h_suitable_no: "❌ ไม่เหมาะสำหรับ",
+    suit_1: "ข้อมูลเซ็นเซอร์เกษตรที่มีช่วงเวลาสม่ำเสมอ", suit_2: "การตรวจสอบสิ่งแวดล้อม IoT ที่มีการอ่านเป็นรอบ",
+    suit_3: "ข้อมูลอนุกรมเวลาที่คุณสมบัติทางสถิติสำคัญกว่าจุดเดี่ยว", suit_4: "สถานการณ์ที่ต้องการลดขนาดอย่างมากโดยยอมรับการประมาณ",
+    nosuit_1: "ข้อมูลที่ต้องการการเก็บรักษาบิตแบบแม่นยำ (ธุรกรรมการเงิน บันทึกทางการแพทย์)", nosuit_2: "หลักฐานทางกฎหมายหรือข้อมูลการปฏิบัติตามกฎระเบียบ",
+    nosuit_3: "กุญแจเข้ารหัส ความลับ หรือโทเค็นยืนยันตัวตน", nosuit_4: "แอปพลิเคชันใดที่การสูญเสียข้อมูลเป็นสิ่งไม่พึงประสงค์",
+    h_sample: "ข้อมูลตัวอย่าง",
+    footer: "BRK — Breakthrough Container v0.1.0 | MIT License | lossless=false | bit_exact_reconstruction=false | semantic_equivalent=true"
+  },
+  vi: {
+    tagline: "Container tái tạo ngữ nghĩa / hướng nhiệm vụ",
+    badge_lossless: "Không mất mát: false", badge_shannon: "KHÔNG vi phạm định lý Shannon",
+    warning_title: "⚠ Quan trọng",
+    warning_text: "BRK không vi phạm định lý Shannon. BRK không phải là bộ nén không mất mát phổ dụng. BRK lưu trữ đặc tả ngữ nghĩa ràng buộc bởi hợp đồng cho tái tạo chấp nhận được.",
+    h_what: "BRK là gì?",
+    p_what_1: 'BRK (Breakthrough Container) là định dạng tệp và công cụ CLI Python nén dữ liệu cảm biến chuỗi thời gian thành <strong>đặc tả ngữ nghĩa ràng buộc bởi hợp đồng</strong>.',
+    p_what_2: 'Dữ liệu tái tạo <strong>KHÔNG</strong> phải là dữ liệu gốc. Đây là xấp xỉ tương đương ngữ nghĩa thỏa mãn hợp đồng tái tạo.',
+    feat_streaming: "Xử lý luồng", feat_streaming_desc: "Xử lý hai lần cho CSV trên 1GB mà không tải vào bộ nhớ. Thuật toán Welford cho ổn định số.",
+    feat_anomaly: "Phát hiện bất thường", feat_anomaly_desc: "Phát hiện bất thường z-score với ngưỡng có thể cấu hình. Bất thường hàng đầu được giữ lại dưới dạng phần dư thưa.",
+    feat_contract: "Ràng buộc hợp đồng", feat_contract_desc: "Hợp đồng tái tạo rõ ràng với dung sai. Checksum ngữ nghĩa (SHA-256) xác minh tính toàn vẹn.",
+    feat_local: "100% Cục bộ", feat_local_desc: "Không đám mây, không serverless, không API AI bên ngoài. Hoạt động hoàn toàn tại chỗ.",
+    h_quickstart: "Bắt đầu nhanh", h_install: "Cài đặt", h_compress: "Nén",
+    p_compress_output: 'Đầu ra: kích thước, trạng thái ngân sách và thông báo "Lossless: false" rõ ràng.',
+    h_inspect: "Kiểm tra", h_verify: "Xác minh", h_decompress: "Tái tạo",
+    p_decompress_note: "CSV tái tạo là xấp xỉ tương đương ngữ nghĩa, KHÔNG phải dữ liệu gốc.",
+    h_format: "Định dạng tệp", th_field: "Trường", th_size: "Kích thước", th_desc: "Mô tả",
+    td_magic: '<code>b"BRK1\\n"</code>', td_codec: '<code>0x01</code> = JSON nén zlib',
+    td_variable: "biến thiên", td_payload: "Container JSON chuẩn đã nén",
+    h_safety_invariants: "Bất biến an toàn (luôn áp dụng)",
+    h_reconstruction: "Tái tạo hoạt động như thế nào",
+    p_reconstruction: 'Bộ giải mã <code>trend_daily_cycle_anomaly_injection</code> tạo giá trị xấp xỉ:',
+    recon_step1: '<strong>Xu hướng cơ sở</strong>: <code>first + slope_per_second × giây_trôi_qua</code>',
+    recon_step2: '<strong>Chu kỳ hàng ngày</strong>: <code>hourly_mean[giờ_hiện_tại] - mean</code> (nếu có)',
+    recon_step3: '<strong>Tiêm bất thường</strong>: Bất thường đã ghi thay thế giá trị tính toán',
+    p_reconstruction_note: "Điều này tạo chuỗi thời gian bảo toàn thuộc tính thống kê và bất thường đã phát hiện, nhưng không khớp bit-exact với bản gốc.",
+    h_suitable: "Khi nào nên / không nên dùng BRK",
+    h_suitable_yes: "✅ Phù hợp cho", h_suitable_no: "❌ KHÔNG phù hợp cho",
+    suit_1: "Dữ liệu cảm biến nông nghiệp với khoảng thời gian đều đặn", suit_2: "Giám sát môi trường IoT với số đọc định kỳ",
+    suit_3: "Dữ liệu chuỗi thời gian nơi thuộc tính thống kê quan trọng hơn điểm dữ liệu cá nhân", suit_4: "Kịch bản cần giảm kích thước mạnh mẽ với xấp xỉ chấp nhận được",
+    nosuit_1: "Dữ liệu cần bảo toàn bit-exact (giao dịch tài chính, hồ sơ y tế)", nosuit_2: "Bằng chứng pháp lý hoặc dữ liệu tuân thủ quy định",
+    nosuit_3: "Khóa mã hóa, bí mật hoặc mã thông báo xác thực", nosuit_4: "Bất kỳ ứng dụng nào mà mất mát dữ liệu là không thể chấp nhận",
+    h_sample: "Dữ liệu mẫu",
+    footer: "BRK — Breakthrough Container v0.1.0 | MIT License | lossless=false | bit_exact_reconstruction=false | semantic_equivalent=true"
+  },
+  id: {
+    tagline: "Kontainer rekonstruksi semantik / berorientasi tugas",
+    badge_lossless: "Tanpa kehilangan: false", badge_shannon: "TIDAK melanggar teorema Shannon",
+    warning_title: "⚠ Penting",
+    warning_text: "BRK tidak melanggar teorema Shannon. BRK bukan kompresor tanpa kehilangan universal. BRK menyimpan spesifikasi semantik yang terikat kontrak untuk rekonstruksi yang dapat diterima.",
+    h_what: "Apa itu BRK?",
+    p_what_1: 'BRK (Breakthrough Container) adalah format file dan alat CLI Python yang mengompresi data sensor deret waktu menjadi <strong>spesifikasi semantik yang terikat kontrak</strong>.',
+    p_what_2: 'Data yang direkonstruksi <strong>BUKAN</strong> data asli. Ini adalah perkiraan setara semantik yang memenuhi kontrak rekonstruksi.',
+    feat_streaming: "Pemrosesan aliran", feat_streaming_desc: "Pemrosesan dua pass untuk CSV lebih dari 1GB tanpa memuat ke memori. Algoritma Welford untuk stabilitas numerik.",
+    feat_anomaly: "Deteksi anomali", feat_anomaly_desc: "Deteksi anomali z-score dengan ambang batas yang dapat dikonfigurasi. Anomali utama dipertahankan sebagai residu renggang.",
+    feat_contract: "Terikat kontrak", feat_contract_desc: "Kontrak rekonstruksi eksplisit dengan toleransi. Checksum semantik (SHA-256) memverifikasi integritas spesifikasi.",
+    feat_local: "100% Lokal", feat_local_desc: "Tanpa cloud, tanpa serverless, tanpa API AI eksternal. Berjalan sepenuhnya di lokal.",
+    h_quickstart: "Mulai cepat", h_install: "Instalasi", h_compress: "Kompresi",
+    p_compress_output: 'Output: ukuran, status anggaran, dan notifikasi eksplisit "Lossless: false".',
+    h_inspect: "Inspeksi", h_verify: "Verifikasi", h_decompress: "Rekonstruksi",
+    p_decompress_note: "CSV yang direkonstruksi adalah perkiraan setara semantik, BUKAN data asli.",
+    h_format: "Format file", th_field: "Bidang", th_size: "Ukuran", th_desc: "Deskripsi",
+    td_magic: '<code>b"BRK1\\n"</code>', td_codec: '<code>0x01</code> = JSON terkompresi zlib',
+    td_variable: "variabel", td_payload: "Kontainer JSON kanonik terkompresi",
+    h_safety_invariants: "Invarian keamanan (selalu diterapkan)",
+    h_reconstruction: "Cara kerja rekonstruksi",
+    p_reconstruction: 'Dekoder <code>trend_daily_cycle_anomaly_injection</code> menghasilkan nilai perkiraan:',
+    recon_step1: '<strong>Tren dasar</strong>: <code>first + slope_per_second × detik_berlalu</code>',
+    recon_step2: '<strong>Siklus harian</strong>: <code>hourly_mean[jam_sekarang] - mean</code> (jika tersedia)',
+    recon_step3: '<strong>Injeksi anomali</strong>: Anomali yang tercatat menggantikan nilai yang dihitung',
+    p_reconstruction_note: "Ini menghasilkan deret waktu yang mempertahankan properti statistik dan anomali yang terdeteksi, tetapi tidak bit-exact dengan aslinya.",
+    h_suitable: "Kapan menggunakan / tidak menggunakan BRK",
+    h_suitable_yes: "✅ Cocok untuk", h_suitable_no: "❌ TIDAK cocok untuk",
+    suit_1: "Data sensor pertanian dengan interval teratur", suit_2: "Pemantauan lingkungan IoT dengan pembacaan periodik",
+    suit_3: "Data deret waktu dimana properti statistik lebih penting dari titik individual", suit_4: "Skenario yang membutuhkan pengurangan ukuran drastis dengan perkiraan yang dapat diterima",
+    nosuit_1: "Data yang memerlukan pelestarian bit-exact (transaksi keuangan, catatan medis)", nosuit_2: "Bukti hukum atau data kepatuhan regulasi",
+    nosuit_3: "Kunci kriptografi, rahasia, atau token autentikasi", nosuit_4: "Aplikasi apa pun dimana kehilangan data tidak dapat diterima",
+    h_sample: "Data sampel",
+    footer: "BRK — Breakthrough Container v0.1.0 | MIT License | lossless=false | bit_exact_reconstruction=false | semantic_equivalent=true"
+  }
+};
+
+// ── IP-based Language Detection ────────────────────────────────────────────
+const IP_LANG_MAP = {
+  JP: 'ja', CN: 'zh', TW: 'zh', HK: 'zh',
+  KR: 'ko', FR: 'fr', DE: 'de', ES: 'es',
+  PT: 'pt', BR: 'pt', IT: 'it', RU: 'ru',
+  SA: 'ar', AE: 'ar', EG: 'ar', TH: 'th',
+  VN: 'vi', ID: 'id', GB: 'en', US: 'en',
+  AU: 'en', CA: 'en', IN: 'en', NZ: 'en',
+  PH: 'en', SG: 'en', MY: 'en',
+};
+
+async function detectLangByIP() {
+  try {
+    const res = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(3000) });
+    const data = await res.json();
+    const country = data.country_code;
+    const detectedLang = IP_LANG_MAP[country] || 'en';
+    return detectedLang;
+  } catch {
+    // Fallback: browser language
+    const browserLang = navigator.language.split('-')[0];
+    if (I18N[browserLang]) return browserLang;
+    return 'en';
+  }
+}
+
+function applyTranslation(lang) {
+  if (!I18N[lang]) lang = 'en';
+  const dict = I18N[lang];
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) {
+      el.innerHTML = dict[key];
+    }
+  });
+
+  document.documentElement.lang = lang;
+  document.title = lang === 'ja' ? 'BRK — Breakthrough Container | セマンティック再構成フォーマット'
+    : lang === 'zh' ? 'BRK — Breakthrough Container | 语义重构格式'
+    : lang === 'ko' ? 'BRK — Breakthrough Container | 시맨틱 재구성 형식'
+    : 'BRK — Breakthrough Container | Semantic Reconstruction Format';
+}
+
+// ── Initialize ─────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  const select = document.getElementById('lang-select');
+  const detectedEl = document.getElementById('lang-detected');
+
+  // Check URL param first
+  const urlLang = new URLSearchParams(window.location.search).get('lang');
+  let currentLang = urlLang;
+
+  // If no URL param, detect by IP
+  if (!currentLang || !I18N[currentLang]) {
+    currentLang = await detectLangByIP();
+    detectedEl.textContent = '(auto-detected)';
+  }
+
+  select.value = currentLang;
+  applyTranslation(currentLang);
+
+  select.addEventListener('change', () => {
+    const lang = select.value;
+    detectedEl.textContent = '';
+    applyTranslation(lang);
+    // Update URL without reload
+    const url = new URL(window.location);
+    url.searchParams.set('lang', lang);
+    history.replaceState(null, '', url);
+  });
+});
+</script>
+
+</body>
+</html>

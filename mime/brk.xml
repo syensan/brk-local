@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  BRK MIME type registration for Linux (freedesktop.org shared-mime-info)
+
+  Install:
+    sudo cp brk.xml /usr/share/mime/packages/
+    sudo update-mime-database /usr/share/mime
+
+  Or user-local:
+    mkdir -p ~/.local/share/mime/packages
+    cp brk.xml ~/.local/share/mime/packages/
+    update-mime-database ~/.local/share/mime
+
+  BRK is NOT a universal lossless compressor.
+  BRK does not break Shannon's theorem.
+-->
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/vnd.brk">
+    <comment>BRK Breakthrough Container</comment>
+    <comment xml:lang="ja">BRK ブレイクスルーコンテナ</comment>
+    <comment xml:lang="zh">BRK 突破性容器</comment>
+    <comment xml:lang="ko">BRK 돌파 컨테이너</comment>
+    <comment xml:lang="fr">Conteneur BRK Breakthrough</comment>
+    <comment xml:lang="de">BRK Breakthrough Container</comment>
+    <comment xml:lang="es">Contenedor BRK Breakthrough</comment>
+    <comment xml:lang="pt">Contêiner BRK Breakthrough</comment>
+    <comment xml:lang="it">Container BRK Breakthrough</comment>
+    <comment xml:lang="ru">Контейнер BRK Breakthrough</comment>
+    <comment xml:lang="ar">حاوية BRK Breakthrough</comment>
+    <comment xml:lang="th">คอนเทนเนอร์ BRK Breakthrough</comment>
+    <comment xml:lang="vi">Container BRK Breakthrough</comment>
+    <comment xml:lang="id">Kontainer BRK Breakthrough</comment>
+    <glob pattern="*.brk"/>
+    <magic priority="80">
+      <match type="string" offset="0" value="BRK1&#x0A;"/>
+    </magic>
+    <alias type="application/vnd.breakthrough-container"/>
+    <sub-class-of type="application/octet-stream"/>
+  </mime-type>
+</mime-info>

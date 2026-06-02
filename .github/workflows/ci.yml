@@ -1,0 +1,57 @@
+name: BRK CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.11", "3.12", "3.13"]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pytest
+
+      - name: Run tests
+        run: pytest -v
+
+      - name: Test CLI help
+        run: python -m brk --help
+
+      - name: Test compress-sensor
+        run: |
+          python -m brk compress-sensor examples/sample_sensor.csv output.brk --budget 2048
+          python -m brk inspect output.brk
+          python -m brk verify output.brk
+          python -m brk decompress-sensor output.brk reconstructed.csv --step-minutes 60
+
+      - name: Verify safety invariants in output
+        run: |
+          python -c "
+          from brk.container import read_brk
+          from pathlib import Path
+          c = read_brk(Path('output.brk'))
+          assert c['header']['flags']['lossless'] is False, 'lossless must be False'
+          assert c['header']['flags']['bit_exact_reconstruction'] is False
+          assert c['header']['flags']['semantic_equivalent'] is True
+          assert c['contract']['lossless'] is False
+          assert c['contract']['semantic_equivalent'] is True
+          print('All safety invariants verified.')
+          "

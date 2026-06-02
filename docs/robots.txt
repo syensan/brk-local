@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Sitemap: sitemap.xml
+
+# BRK documentation - all crawlers welcome
+# BRK is NOT a universal lossless compressor

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  BRK UTType Registration for macOS
+  
+  BRK is NOT a universal lossless compressor.
+  BRK does not break Shannon's theorem.
+  
+  Install:
+    Copy this file to ~/Library/Preferences/ or use duti tool:
+      brew install duti
+      duti -s application/vnd.brk .brk all
+-->
+<plist version="1.0">
+<dict>
+    <key>UTExportedTypeDeclarations</key>
+    <array>
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>application/vnd.brk</string>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>brk</string>
+                </array>
+                <key>public.mime-type</key>
+                <array>
+                    <string>application/vnd.brk</string>
+                    <string>application/vnd.breakthrough-container</string>
+                </array>
+            </dict>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.data</string>
+                <string>public.content</string>
+            </array>
+            <key>UTTypeDescription</key>
+            <string>BRK Breakthrough Container</string>
+            <key>UTTypeIconFile</key>
+            <string>BrkIcon</string>
+        </dict>
+    </array>
+</dict>
+</plist>

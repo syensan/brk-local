@@ -1,0 +1,63 @@
+# BRK — Breakthrough Container
+
+> BRK is a semantic / task-oriented reconstruction container format (.brk).
+> BRK does NOT break Shannon's theorem. BRK is NOT a universal lossless compressor.
+
+## What is BRK?
+
+BRK (Breakthrough Container) is a file format and Python CLI tool that compresses time-series sensor data into a contract-bound semantic specification. Instead of bit-exact compression, BRK stores statistical properties, trends, daily cycles, and anomalies — enabling approximate reconstruction within defined tolerances.
+
+## Key Facts
+
+- **Extension**: `.brk`
+- **MIME**: `application/vnd.brk`
+- **Magic bytes**: `BRK1\n` (0x42 0x52 0x4B 0x31 0x0A)
+- **Profile**: BRK-Sensor v0.1 (agricultural/IoT sensors)
+- **Language**: Python 3.11+
+- **License**: MIT
+- **Model**: BRK-Sensor-Analytic v0.1 (analytic, no neural weights)
+- **Lossless**: false (always)
+- **Bit-exact reconstruction**: false (always)
+- **Semantic equivalent**: true (always)
+
+## Install
+
+```bash
+pip install -e .
+```
+
+## CLI
+
+```bash
+brk compress-sensor input.csv output.brk
+brk decompress-sensor output.brk reconstructed.csv --step-minutes 60
+brk inspect output.brk
+brk verify output.brk
+```
+
+## Safety Invariants
+
+Every `.brk` container enforces:
+- `header.flags.lossless = false`
+- `header.flags.bit_exact_reconstruction = false`
+- `header.flags.semantic_equivalent = true`
+- `contract.lossless = false`
+- `contract.semantic_equivalent = true`
+
+## Use Cases
+
+- Agricultural sensor data archiving
+- IoT time-series data reduction
+- Statistical preservation with anomaly detection
+- Local/on-premises data processing (no cloud required)
+
+## Not Suitable For
+
+- Medical records
+- Legal evidence
+- Cryptographic keys
+- Any data where loss is unacceptable
+
+## Repository
+
+https://github.com/brk-local/brk-local

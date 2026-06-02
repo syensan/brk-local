@@ -1,0 +1,11 @@
+# BRK is NOT a universal lossless compressor.
+# BRK does not break Shannon's theorem.
+
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/brk-local/brk-local/blob/main/README.md
+    about: Read the README and docs/ before opening an issue
+  - name: FAQ
+    url: https://github.com/brk-local/brk-local/blob/main/docs/llms-full.txt
+    about: Full specification and FAQ for LLMs and humans

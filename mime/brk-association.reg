@@ -1,0 +1,62 @@
+Windows Registry Editor Version 5.00
+
+; BRK Breakthrough Container File Association
+; BRK is NOT a universal lossless compressor.
+; BRK does not break Shannon's theorem.
+;
+; Usage: Double-click this file to import into registry.
+; Requires: brk command available in PATH (via pip install -e .)
+
+; Register the .brk file extension
+[HKEY_CURRENT_USER\Software\Classes\.brk]
+@="BRK.Container"
+
+; Register the BRK.Container progid
+[HKEY_CURRENT_USER\Software\Classes\BRK.Container]
+@="BRK Breakthrough Container"
+
+[HKEY_CURRENT_USER\Software\Classes\BRK\Container\FriendlyTypeName]
+@="BRK Breakthrough Container"
+
+[HKEY_CURRENT_USER\Software\Classes\BRK.Container\DefaultIcon]
+@="%LOCALAPPDATA%\\Programs\\Python\\Python312\\Lib\\site-packages\\brk\\mime\\brk-icon.ico,0"
+
+; Inspect command (default double-click action)
+[HKEY_CURRENT_USER\Software\Classes\BRK.Container\shell]
+@="inspect"
+
+[HKEY_CURRENT_USER\Software\Classes\BRK.Container\shell\inspect]
+@="&Inspect BRK Container"
+"Icon"="brk.exe"
+
+[HKEY_CURRENT_USER\Software\Classes\BRK.Container\shell\inspect\command]
+@="cmd.exe /c \"brk inspect \"%1\" & pause\""
+
+; Verify command
+[HKEY_CURRENT_USER\Software\Classes\BRK.Container\shell\verify]
+@="&Verify BRK Container"
+"Icon"="brk.exe"
+
+[HKEY_CURRENT_USER\Software\Classes\BRK.Container\shell\verify\command]
+@="cmd.exe /c \"brk verify \"%1\" & pause\""
+
+; Decompress command
+[HKEY_CURRENT_USER\Software\Classes\BRK.Container\shell\decompress]
+@="&Reconstruct CSV from BRK..."
+"Icon"="brk.exe"
+
+[HKEY_CURRENT_USER\Software\Classes\BRK.Container\shell\decompress\command]
+@="cmd.exe /c \"set OUTPUT=%1.reconstructed.csv & brk decompress-sensor \"%1\" \"%OUTPUT%\" --step-minutes 60 & echo Reconstructed: %OUTPUT% & pause\""
+
+; MIME type
+[HKEY_CURRENT_USER\Software\Classes\BRK.Container\MIME]
+@="application/vnd.brk"
+
+; Content type
+[HKEY_CURRENT_USER\Software\Classes\.brk]
+"Content Type"="application/vnd.brk"
+"PerceivedType"="Compressed"
+
+; Tooltip
+[HKEY_CURRENT_USER\Software\Classes\BRK\Container\shell\inspect]
+"Extended"=-
