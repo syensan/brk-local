@@ -15,7 +15,8 @@ Thank you for your interest in contributing to BRK — Breakthrough Container!
 ## Development Setup
 
 ```bash
-git clone https://github.com/brk-local/brk-local.git
+git clone git clonegit clone https://github.com/syensan/brk-local.git
+
 cd brk-local
 python -m venv .venv
 source .venv/bin/activate  # or .\.venv\Scripts\Activate.ps1 on Windows

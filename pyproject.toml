@@ -41,10 +41,10 @@ brk = ["py.typed"]
 mime = ["*.xml", "*.desktop", "*.reg", "*.ps1", "*.plist", "*.sh"]
 
 [project.urls]
-Homepage = "https://github.com/brk-local/brk-local"
-Repository = "https://github.com/brk-local/brk-local"
-Documentation = "https://github.com/brk-local/brk-local/tree/main/docs"
-Bug-Tracker = "https://github.com/brk-local/brk-local/issues"
+Homepage = "https://github.com/syensan/brk-local"
+Repository = "https://github.com/syensan/brk-local"
+Documentation = "https://github.com/syensan/brk-local/tree/main/docs"
+Bug-Tracker = "https://github.com/syensan/brk-local/issues"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
